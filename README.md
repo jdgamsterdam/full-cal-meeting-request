@@ -83,7 +83,7 @@ Once Imported (for whatever reason) Open the Feed Type and Save (creating indivi
 
   https://outlook.live.com/owa/calendar/00000000-0000-0000-0000-000000000000/a8061369-2197-473b-b89d-dba34055363e/cid-CC88C0B7EEAFC3FA/calendar.ics
 
-  If something goes wrong use drush entity:delete node --bundle=calendar_restriction_instances
+  After the import you can open one of the nodes to make sure the Calendar Owner ID is set correctly. If  something goes wrong with the import you can delete all the instances (there could be alot). You can use   drush entity:delete node --bundle=calendar_restriction_instances
 
 6. webform_ics_handler - Needed if you want to Create an ICS file which can be added to a meeting request
    a. Creates an ICS file from the above webform which can be sent with an email. 

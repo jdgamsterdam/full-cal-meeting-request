@@ -430,7 +430,6 @@
           // * User has the permission to create a new event.
           // * The add form for the new event type is known.
           // FCMR - Time Space is Empty on Day Select
-          //
           //console.log('Add form: ' + viewSettings.addForm);
           //console.log('Selected Calendar: ' + viewSettings.selectedCalendar);
           //console.log('slotDate: ' + slotDate);

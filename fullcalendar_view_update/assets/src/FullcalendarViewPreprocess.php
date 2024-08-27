@@ -152,9 +152,11 @@ class FullcalendarViewPreprocess {
     $open_from_url = $options['open_from_url'];
     $appointment_url = $options['appointment_url'];
  
-
-    //However since we want the real user ID we will get the uid entry from the first row of the return set. Since this is a filter every row should have the same value
-    //The field for the UID is users_field_data_node__field_calendar_owner_uid , but probably should make a field to enter this
+    //FCMR
+    //We need the UID of the Calendar so that it can be sent to the meeting request form. 
+    //This could either be done from the Calendar Select (exposed filter) or from the columb in the result set.
+    //It seems to be easier to get it from the result set (and since it is a filter it will be the same on every row) 
+    //The field for the UID in the standard setup is users_field_data_node__field_calendar_owner_uid , but probably should make a field to enter this
     //To Find the correct Field look in the AS section of the view query 
     $result_rows = $view->result;
     // Check if there are rows.

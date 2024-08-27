@@ -79,9 +79,9 @@ Once Imported (for whatever reason) Open the Feed Type and Save (creating indivi
   There should be a custom field to enter the User ID for the Calendar Owner
   You could use a calendar with actual subjects, but by default I use the Free/Busy Calendar (for Privacy)
 
-  Jon Goldberg's Main Free Busy Calendar:
+  This is a test Free Busy Calendar:
 
-  https://outlook.live.com/owa/calendar/0237ed64-81c9-46c1-9297-c6ee45656538/2283c4af-6235-4759-9c06-cd6d0dae9c2a/cid-0C34A841728FC775/calendar.ics
+  https://outlook.live.com/owa/calendar/00000000-0000-0000-0000-000000000000/a8061369-2197-473b-b89d-dba34055363e/cid-CC88C0B7EEAFC3FA/calendar.ics
 
   If something goes wrong use drush entity:delete node --bundle=calendar_restriction_instances
 

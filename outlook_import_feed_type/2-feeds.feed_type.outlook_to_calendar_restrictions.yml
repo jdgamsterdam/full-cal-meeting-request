@@ -1,0 +1,114 @@
+uuid: a8f03bbf-232f-4bf6-8d88-68a6bfb800b0
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.calendar_restriction_instances.field_ical_calendar_owner
+    - field.field.node.calendar_restriction_instances.field_ical_dtend
+    - field.field.node.calendar_restriction_instances.field_ical_dtend_utc_stamp
+    - field.field.node.calendar_restriction_instances.field_ical_dtstart
+    - field.field.node.calendar_restriction_instances.field_ical_dtstart_utc_stamp
+    - field.field.node.calendar_restriction_instances.field_ical_record_uid
+    - node.type.calendar_restriction_instances
+  module:
+    - feeds_ical
+    - feeds_tamper
+    - node
+third_party_settings:
+  feeds_tamper:
+    tampers:
+      b069295d-4a9b-4b5a-b5f0-21fadcf6b4e3:
+        text: '[parent:field_calendar_owner_uid]|[dtstart]-[dtend]'
+        uuid: b069295d-4a9b-4b5a-b5f0-21fadcf6b4e3
+        plugin: rewrite
+        source: standardrestrictiontitle
+        weight: 0
+        label: Rewrite
+label: 'Outlook To Calendar Restrictions'
+id: outlook_to_calendar_restrictions
+description: 'Feed type to Import from an Outlook.com ical Calendar'
+help: ''
+import_period: -1
+fetcher: http
+fetcher_configuration:
+  auto_detect_feeds: false
+  use_pubsubhubbub: false
+  always_download: false
+  fallback_hub: ''
+  request_timeout: 30
+parser: feeds_ical
+parser_configuration: {  }
+processor: 'entity:node'
+processor_configuration:
+  values:
+    type: calendar_restriction_instances
+  langcode: en
+  insert_new: 1
+  update_existing: 1
+  update_non_existent: _delete
+  skip_hash_check: false
+  skip_validation: false
+  skip_validation_types: {  }
+  authorize: true
+  revision: false
+  expire: -1
+  owner_feed_author: false
+  owner_id: 0
+custom_sources:
+  standardrestrictiontitle:
+    value: StandardRestrictionTitle
+    label: StandardRestrictionTitle
+    machine_name: standardrestrictiontitle
+    type: blank
+mappings:
+  -
+    target: field_ical_dtstart
+    map:
+      value: dtstart
+    settings:
+      language: null
+      timezone: UTC
+  -
+    target: field_ical_dtend
+    map:
+      value: dtend
+    settings:
+      language: null
+      timezone: UTC
+  -
+    target: field_ical_record_uid
+    map:
+      value: uid
+    settings:
+      language: null
+    unique: {  }
+  -
+    target: title
+    map:
+      value: standardrestrictiontitle
+    settings:
+      language: null
+    unique: {  }
+  -
+    target: field_ical_calendar_owner
+    map:
+      target_id: 'parent:field_calendar_owner_uid'
+    settings:
+      language: ''
+      reference_by: uid
+      autocreate: 0
+      autocreate_bundle: false
+  -
+    target: field_ical_dtstart_utc_stamp
+    map:
+      value: dtstart
+    settings:
+      language: null
+    unique: {  }
+  -
+    target: field_ical_dtend_utc_stamp
+    map:
+      value: dtend
+    settings:
+      language: null
+    unique: {  }

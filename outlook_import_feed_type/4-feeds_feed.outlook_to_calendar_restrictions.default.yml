@@ -1,0 +1,47 @@
+uuid: 9fefbc81-4d98-48e8-93a7-8a88a78d1b7c
+langcode: en
+status: true
+dependencies:
+  config:
+    - feeds.feed_type.outlook_to_calendar_restrictions
+    - field.field.feeds_feed.outlook_to_calendar_restrictions.field_calendar_owner_uid
+id: feeds_feed.outlook_to_calendar_restrictions.default
+targetEntityType: feeds_feed
+bundle: outlook_to_calendar_restrictions
+mode: default
+content:
+  created:
+    type: datetime_timestamp
+    weight: 2
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_calendar_owner_uid:
+    type: entity_reference_autocomplete
+    weight: 3
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  uid:
+    type: entity_reference_autocomplete
+    weight: 1
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden: {  }

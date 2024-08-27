@@ -1,0 +1,8 @@
+name: 'Calendar Restriction Webform Handler'
+type: module
+description: 'Webform and Custom Handler for Expanding Calendar Restrictions to individual Nodes'
+core_version_requirement: ^10
+package: Custom
+dependencies:
+  - drupal:webform
+  - drupal:calendar_restriction_instances

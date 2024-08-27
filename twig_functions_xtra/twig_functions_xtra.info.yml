@@ -1,0 +1,9 @@
+name: Twig Functions Xtra
+description: 'Provides extra twig functions.'
+type: module
+core_version_requirement: ^10
+
+# Information added by Drupal.org packaging script on 2023-01-25
+#version: '10.x-1.0'
+#project: 'twig_functions_xtra'
+#datestamp: 1717328141

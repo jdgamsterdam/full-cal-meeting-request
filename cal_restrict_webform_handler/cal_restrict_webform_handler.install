@@ -1,0 +1,122 @@
+<?php
+
+/**
+ * Implements hook_schema().
+ */
+function cal_restrict_webform_handler_schema() {
+
+  // Fields in Webform calendar_restrictions_fields are "dow","start_time","end_time","duration_days"
+
+  $schema['calendar_restrictions'] = [
+    'description' => 'Description of the custom table.',
+    'fields' => [
+      'id' => [
+        'description' => 'Primary Key: Unique ID',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ],
+      'dow' => [
+        'description' => 'Day of the Week',
+        'type' => 'varchar',
+        'length' => 20,
+        'not null' => TRUE,
+      ],
+      'start_time' => [
+        'description' => 'Start Time of Restriction.',
+        'type' => 'varchar',
+        'length' => 10,
+        'not null' => TRUE,
+      ],
+      'end_time' => [
+        'description' => 'End Time of the Restriction',
+        'type' => 'varchar',
+        'length' => 10,
+        'not null' => TRUE,
+      ],
+      'duration_days' => [
+        'description' => 'Duration of the Restriction',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'small',
+        'not null' => TRUE,
+      ],
+      'calendar_instance_owner' => [
+        'description' => 'The owner of the calendar instances',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'small',
+        'not null' => TRUE,
+      ],
+      'calendar_instance_time_zone' => [
+        'description' => 'The Time Zone of the calendar instances',
+        'type' => 'varchar',
+        'length' => 60,
+        'not null' => TRUE,
+      ],
+      'webform_submission_id' => [
+        'description' => 'This Submission ID from the Webform',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'size' => 'small',
+        'not null' => TRUE,
+      ],
+      'webform_id' => [
+        'description' => 'The Webform ID',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ],
+    ],
+    'primary key' => ['id'],
+  ];
+  return $schema;
+}
+
+/**
+ * Implements hook_install().
+ */
+function cal_restrict_webform_handler_install() {
+    cal_restrict_webform_handler_ensure_custom_table_exists();
+
+    //Create Sincle Instance of the Content Type to make sure it works
+ 
+    // Check if the content type 'calendar_restriction_instances' exists.
+    if (\Drupal::entityTypeManager()->getStorage('node_type')->load('calendar_restriction_instances')) {
+    // Create a node of type 'calendar_restriction_instances' with the title 'Example Record'.
+      $node = \Drupal\node\Entity\Node::create([
+        'type' => 'calendar_restriction_instances',
+        'title' => 'Example Record',
+        'status' => 1, // 1 = Published, 0 = Unpublished.
+      ]);
+      // Save the node.
+      $node->save();
+    }
+    else {
+      \Drupal::messenger()->addMessage(t('Content type calendar_restriction_instances does not exist.'), 'error');
+    }
+}
+
+/**
+ * Check if the custom table exists and create it if it does not.
+ */
+function cal_restrict_webform_handler_ensure_custom_table_exists() {
+  $schema = \Drupal::database()->schema();
+
+  // Check if the table exists.
+  if (!$schema->tableExists('calendar_restrictions')) {
+    try {
+      // Load the schema definition for the table.
+      $schema_definition = custom_module_schema();
+
+      // Create the table.
+      $schema->createTable('calendar_restrictions', $schema_definition['calendar_restrictions']);
+      \Drupal::logger('cal_restrict_webform_handler')->notice('Custom table created successfully.');
+    } catch (\Exception $e) {
+      // Handle exception if table creation fails.
+      \Drupal::logger('cal_restrict_webform_handler')->error('Failed to create custom table: @message', ['@message' => $e->getMessage()]);
+    }
+  }
+  else {
+    \Drupal::logger('cal_restrict_webform_handler')->notice('Custom table already exists.');
+  }
+}

@@ -1,0 +1,337 @@
+<?php
+
+use Drupal\node\Entity\NodeType;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\Core\Database\Database;
+use Drupal\Core\Entity\Entity\EntityViewDisplay;
+use Drupal\Core\Entity\Entity\EntityFormDisplay;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\user\Entity\User;
+
+use Drupal\user\Entity\Role;
+use Drupal\user\RoleInterface;
+
+
+/**
+ * Implements hook_install().
+ */
+function calendar_restriction_instances_install() {
+  calendar_restriction_instances_create_content_type();
+  calendar_restriction_instances_add_fields();
+  calendar_restriction_instances_set_display_settings();
+  calendar_restriction_instances_create_role();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function calendar_restriction_instances_uninstall() {
+
+  $entity_type = 'node';
+  $bundle = 'calendar_restriction_instances';
+  $form_display_id = $entity_type . '.' . $bundle . '.default';
+  $form_display_entity = EntityFormDisplay::load($form_display_id);
+
+  if ($form_display_entity) {
+    // Delete the form display entity.
+    $form_display_entity->delete();
+    $my_message = 'The default form display for the bundle has been deleted.';
+  }
+  else {
+    $my_message = 'The default form display for the bundle has NOT been deleted.';
+  }
+
+  // Load the calendar content type content type.
+  $content_type = NodeType::load($bundle);
+
+  if ($content_type) {
+    // Check if the content type has content. If so, delete all nodes of this type first.
+    $database = Database::getConnection();
+    $query = $database->select('node', 'n')
+      ->fields('n', ['nid'])
+      ->condition('type', $bundle)
+      ->execute();
+    $nids = $query->fetchCol();
+
+    if (!empty($nids)) {
+      // Load and delete all nodes of this type.
+      foreach ($nids as $nid) {
+        $node = \Drupal\node\Entity\Node::load($nid);
+        if ($node) {
+          $node->delete();
+        }
+      }
+    }
+    // Delete the content type itself if it exists.
+    $content_type->delete();
+  }  
+
+  // Finally, delete the Custom Role
+  // Define the role ID.
+  $role_id = 'calendar_owner';
+
+  // Load the role.
+  $role = Role::load($role_id);
+  if ($role) {
+    // Delete the role.
+    $role->delete();
+  }
+}
+
+/**
+ * Function to create the Calendar Restrictions content type.
+ */
+function calendar_restriction_instances_create_content_type() {
+  $type = [
+    'type' => 'calendar_restriction_instances',
+    'name' => 'Calendar Restriction Instances',
+    'description' => 'A custom content type for calendar restriction instances similar to iCal records.',
+    'status' => TRUE,
+  ];
+  NodeType::create($type)->save();
+}
+
+/**
+ * Function to add fields to the Calendar Restrictions content type.
+ */
+function calendar_restriction_instances_add_fields() {
+  $fields = [
+    'field_ical_record_uid' => [
+      'type' => 'string',
+      'label' => 'iCal Record UID',
+      'widget' => 'string_textfield',
+    ],
+    'field_ical_dtstamp' => [
+      'type' => 'datetime',
+      'label' => 'DTSTAMP',
+      'widget' => 'datetime_default',
+    ],
+    'field_ical_dtstart' => [
+      'type' => 'datetime',
+      'label' => 'DTSTART',
+      'widget' => 'datetime_default',
+    ],
+    'field_ical_dtstart_utc_stamp' => [
+      'type' => 'integer',
+      'label' => 'DTSTART UTC',
+      'widget' => 'number',
+      'settings' => ['unsigned' => TRUE,],
+    ],
+    'field_ical_dtend' => [
+      'type' => 'datetime',
+      'label' => 'DTEND',
+      'widget' => 'datetime_default',
+    ],
+    'field_ical_dtend_utc_stamp' => [
+      'type' => 'integer',
+      'label' => 'DTEND UTC',
+      'widget' => 'number',
+      'settings' => ['unsigned' => TRUE,],
+    ],
+    'field_ical_summary' => [
+      'type' => 'string',
+      'label' => 'Summary',
+      'widget' => 'string_textfield',
+    ],
+    'field_ical_description' => [
+      'type' => 'text_long',
+      'label' => 'Description',
+      'widget' => 'text_textarea',
+    ],
+    'field_ical_location' => [
+      'type' => 'string',
+      'label' => 'Location',
+      'widget' => 'string_textfield',
+    ],
+    'field_ical_status' => [
+      'type' => 'list_string',
+      'label' => 'Status',
+      'widget' => 'options_select',
+      'settings' => ['allowed_values' => ['Confirmed' => 'Confirmed', 'Tentative' => 'Tentative', 'Cancelled' => 'Cancelled']],
+    ],
+    'field_ical_attendee' => [
+      'type' => 'string',
+      'label' => 'Attendee',
+      'widget' => 'string_textfield',
+      'settings' => ['cardinality' => FieldStorageConfig::CARDINALITY_UNLIMITED],
+    ],
+    'field_ical_categories' => [
+      'type' => 'string',
+      'label' => 'Categories',
+      'widget' => 'string_textfield',
+    ],
+    'field_ical_priority' => [
+      'type' => 'integer',
+      'label' => 'Priority',
+      'widget' => 'number',
+    ],
+    'field_ical_url' => [
+      'type' => 'link',
+      'label' => 'URL',
+      'widget' => 'link_default',
+    ],
+    'field_ical_timezone' => [
+      'type' => 'string',
+      'label' => 'Time Zone',
+      'widget' => 'string_textfield',
+    ],  
+    'field_ical_calendar_owner' => [
+      'type' => 'entity_reference',
+      'label' => 'Calendar Owner ID',
+      'settings' => [
+        'target_type' => 'user',
+      ],
+    ],   
+  ];
+
+  foreach ($fields as $field_name => $field_info) {
+    FieldStorageConfig::create([
+      'field_name' => $field_name,
+      'entity_type' => 'node',
+      'type' => $field_info['type'],
+      'settings' => isset($field_info['settings']) ? $field_info['settings'] : [],
+    ])->save();
+
+    FieldConfig::create([
+      'field_storage' => FieldStorageConfig::loadByName('node', $field_name),
+      'bundle' => 'calendar_restriction_instances',
+      'label' => $field_info['label'],
+      'settings' => isset($field_info['field_settings']) ? $field_info['field_settings'] : [],
+      'widget' => [
+        'type' => $field_info['widget'],
+      ],
+    ])->save();
+  }
+}
+
+/**
+ * Function to set default display settings for the Calendar Restrictions content type.
+ */
+function calendar_restriction_instances_set_display_settings() {
+  $view_display = EntityViewDisplay::create([
+    'targetEntityType' => 'node',
+    'bundle' => 'calendar_restriction_instances',
+    'mode' => 'default',
+    'status' => TRUE,
+  ]);
+
+  $form_display = EntityFormDisplay::create([
+    'targetEntityType' => 'node',
+    'bundle' => 'calendar_restriction_instances',
+    'mode' => 'default',
+    'status' => TRUE,
+  ]);
+
+  $form_display->setComponent('field_ical_record_uid', [
+    'type' => 'string_textfield',
+    'label' => 'above',
+    'weight' => 0,
+  ])->save();
+
+  $form_display->setComponent('field_ical_dtstamp', [
+    'type' => 'datetime_timestamp',
+    'label' => 'above',
+    'weight' => 1,
+  ])->save();
+
+  $form_display->setComponent('field_ical_dtstart', [
+    'type' => 'datetime_timestamp',
+    'label' => 'above',
+    'weight' => 2,
+  ])->save();
+
+  $form_display->setComponent('field_ical_dtstart_utc_stamp', [
+    'type' => 'datetime_timestamp',
+    'label' => 'above',
+    'weight' => 3,
+  ])->save();
+
+  $form_display->setComponent('field_ical_dtend', [
+    'type' => 'datetime_timestamp',
+    'label' => 'above',
+    'weight' => 4,
+  ])->save();
+
+  $form_display->setComponent('field_ical_dtend_utc_stamp', [
+    'type' => 'datetime_timestamp',
+    'label' => 'above',
+    'weight' => 5,
+  ])->save();
+
+  $form_display->setComponent('field_ical_summary', [
+    'type' => 'string_textfield',
+    'label' => 'above',
+    'weight' => 6,
+  ])->save();
+
+  $form_display->setComponent('field_ical_description', [
+    'type' => 'string_textfield',
+    'label' => 'above',
+    'weight' => 7,
+  ])->save();
+
+  $form_display->setComponent('field_ical_location', [
+    'type' => 'string_textfield',
+    'label' => 'above',
+    'weight' => 8,
+  ])->save();
+
+  $form_display->setComponent('field_ical_attendee', [
+    'type' => 'string_textfield',
+    'label' => 'above',
+    'weight' => 9,
+  ])->save();
+
+  $form_display->setComponent('field_ical_categories', [
+    'type' => 'string_textfield',
+    'label' => 'above',
+    'weight' => 10,
+  ])->save();
+
+  $form_display->setComponent('field_ical_priority', [
+    'label' => 'above',
+    'weight' => 11,
+  ])->save();
+
+  $form_display->setComponent('field_ical_status', [
+    'label' => 'above',
+    'weight' => 12,
+  ])->save();
+
+  $form_display->setComponent('field_ical_url', [
+    'label' => 'above',
+    'weight' => 13,
+  ])->save();
+
+  $form_display->setComponent('field_ical_timezone', [
+    'label' => 'above',
+    'weight' => 14,
+  ])->save();
+
+  $form_display->setComponent('field_ical_calendar_owner', [
+    'label' => 'above',
+    'weight' => 15,
+  ])->save();
+}
+
+/**
+ * Create the Calendar Owner Role if it does not exist
+ */
+function calendar_restriction_instances_create_role() {
+  
+  // Define the role ID and label.
+  $role_id = 'calendar_owner';
+  $role_label = 'Calendar Owner';
+
+  // Check if the role already exists.
+  $role = Role::load($role_id);
+  if (!$role) {
+    // Create the new role.
+    $role = Role::create([
+      'id' => $role_id,
+      'label' => $role_label,
+    ]);
+    $role->save();
+  }
+}

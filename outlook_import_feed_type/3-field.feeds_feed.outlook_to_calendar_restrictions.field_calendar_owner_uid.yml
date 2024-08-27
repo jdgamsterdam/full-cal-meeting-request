@@ -1,0 +1,26 @@
+_core:
+  default_config_hash: GJ4pZFXV9bcOZtz_ZKicHVtD6268ULwGD7-Mx-SwGWE
+langcode: en
+status: true
+id: feeds_feed.outlook_to_calendar_restrictions.field_calendar_owner_uid
+field_name: field_calendar_owner_uid
+entity_type: feeds_feed
+bundle: outlook_to_calendar_restrictions
+label: calendar_owner_uid
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:user'
+  handler_settings:
+    target_bundles: null
+    sort:
+      field: _none
+      direction: ASC
+    auto_create: false
+    filter:
+      type: _none
+    include_anonymous: true
+field_type: entity_reference

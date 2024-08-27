@@ -1,0 +1,5 @@
+services:
+  cal_restrict_webform_handler.cal_restrict_webform_handler:
+    class: Drupal\cal_restrict_webform_handler\Plugin\WebformHandler\CalRestrictWebformHandler
+    tags:
+      - { name: webform_handler }

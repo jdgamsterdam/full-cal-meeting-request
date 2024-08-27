@@ -1,0 +1,25 @@
+services:
+  hello_world.twig_extension:
+    class: Drupal\twig_functions_xtra\Twig\HelloWorldExtension
+    tags:
+      - { name: twig.extension }
+  check_date_request.twig_extension:
+    class: Drupal\twig_functions_xtra\Twig\GetUserTimezoneExtension
+    tags:
+      - { name: twig.extension }
+  view_result_json.twig_extension:
+    class: Drupal\twig_functions_xtra\Twig\RenderViewResultJson
+    tags:
+      - { name: twig.extension }
+  fetch.twig_extension:
+    class: Drupal\twig_functions_xtra\Twig\Fetch
+    tags:
+      - { name: twig.extension }
+  json_decode.twig_extension:
+    class: Drupal\twig_functions_xtra\Twig\JSONDecode
+    tags:
+      - { name: twig.extension }
+  replace_time_in_date.twig_extension:
+    class: Drupal\twig_functions_xtra\Twig\ReplaceTimeInDateExtension
+    tags:
+      - { name: twig.extension }

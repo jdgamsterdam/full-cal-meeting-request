@@ -1,0 +1,20 @@
+{
+    "name": "jdgamsterdam/twig_functions_xtra",
+    "description": "Useful functions, filters for twig @ Drupal 10 and CiviCrm - Due to Changes in Twig API this may only work with Drupal 10",
+    "type": "drupal-module",
+    "authors": [
+      {
+        "name": "Jon Goldberg (based on a number of other projects)",
+        "email": "jdgamsterdam@gmail.com"
+      }
+    ],
+    "homepage": "https://github.com/users/jdgamsterdam/projects/2/",
+    "support": {
+      "issues": "https://github.com/users/jdgamsterdam/projects/2/issues"
+    },
+    "license": "MIT",
+    "minimum-stability": "dev",
+    "require": {
+        "drupal/core": "^10"
+    }
+  }

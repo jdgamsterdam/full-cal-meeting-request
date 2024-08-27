@@ -1,0 +1,1 @@
+DELETE FROM {calendar_restrictions} WHERE calendar_instance_owner=MY_OWNER_ID and id<>0;

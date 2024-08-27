@@ -1,0 +1,60 @@
+diff --git a/./../../fullcalendar_view/js/fullcalendar_view.js b/./assets/js/fullcalendar_view.js
+index 01f60b5..ddbb2d7 100644
+--- a/./../../fullcalendar_view/js/fullcalendar_view.js
++++ b/./assets/js/fullcalendar_view.js
+@@ -42,7 +42,7 @@
+     let eventListTitleEle = info.el.getElementsByClassName('fc-list-item-title');
+     if(eventListTitleEle.length > 0) {
+       if (info.event.url) {
+-        eventListTitleEle[0].innerHTML = '<a href="' + encodeURI(info.event.url) + '">' + info.event.title + '</a>';
++        eventListTitleEle[0].innerHTML = '<a href="' + encodeURI(info.event.url) + '">' + Drupal.checkPlain(info.event.title) + '</a>';
+       }
+       else {
+         eventListTitleEle[0].innerHTML = info.event.title;
+@@ -395,7 +395,31 @@
+           // * Allow to create a new event by double click.
+           // * User has the permission to create a new event.
+           // * The add form for the new event type is known.
+-          if (
++        
++          //
++          //console.log('Add form: ' + viewSettings.addForm);
++          //console.log('Selected Calendar: ' + viewSettings.selectedCalendar);
++          //console.log('slotDate: ' + slotDate);
++          //console.log('allOptions: ' + viewSettings.allOptions);
++          //console.log('eventBundleType: ' + viewSettings.selectedEventBundleType);
++          //console.log('openFromURL: ' + viewSettings.openFromURL);
++          //console.log('appointmentURL: ' + viewSettings.appointmentURL);
++
++          if (viewSettings.openFromURL==1) {
++            //
++            // Open Page from Other URL - Following is an example
++            //builtURL = '/form/meeting-request?subject=My Subject&requested_date=11/01/2024&start_time=10:00&end_time=10:30&calendar_restriction_owner=1'
++            builtURL = viewSettings.appointmentURL;
++            //Replace UID
++            builtURL = builtURL.replace('[UID]', viewSettings.selectedCalendar);
++            //Replace SLOTDATE
++            builtURL = builtURL.replace('[SLOTDATE]', slotDate); 
++            //Replace SLOTTIME 
++            builtURL = builtURL.replace('[SLOTTIME]', slotDate);
++            console.log(` BuiltURL: ${builtURL}`);
++            window.open(builtURL,"_blank");
++          }
++          else if (
+               slotDate &&
+               viewSettings.eventBundleType &&
+               viewSettings.dblClickToCreate &&
+@@ -409,11 +433,10 @@
+                   slotDate +
+                   "&start_field=" +
+                   viewSettings.startField +
+-                  "&destination=" + window.location.pathname,
++                  "&destination=" + viewSettings.startField,
+                 "_blank"
+               );
+-            }
+-
++            }  
+         });
+       }
+     });

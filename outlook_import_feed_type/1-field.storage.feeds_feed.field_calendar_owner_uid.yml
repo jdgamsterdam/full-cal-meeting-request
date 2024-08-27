@@ -1,0 +1,20 @@
+uuid: c52d13a6-b072-417b-a83f-147880bca2f0
+langcode: en
+status: true
+dependencies:
+  module:
+    - feeds
+    - user
+id: feeds_feed.field_calendar_owner_uid
+field_name: field_calendar_owner_uid
+entity_type: feeds_feed
+type: entity_reference
+settings:
+  target_type: user
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

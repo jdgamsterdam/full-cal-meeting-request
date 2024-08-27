@@ -1,0 +1,86 @@
+diff --git a/./../../fullcalendar_view/src/FullcalendarViewPreprocess.php b/./assets/src/FullcalendarViewPreprocess.php
+old mode 100644
+new mode 100755
+index 3c2e5f8..1ecc1da
+--- a/./../../fullcalendar_view/src/FullcalendarViewPreprocess.php
++++ b/./assets/src/FullcalendarViewPreprocess.php
+@@ -78,6 +78,7 @@ class FullcalendarViewPreprocess {
+     $options = $style->options;
+     $fields = $view->field;
+ 
++
+     // Get current language.
+     $language = $this->languageManager->getCurrentLanguage();
+ 
+@@ -90,6 +91,9 @@ class FullcalendarViewPreprocess {
+     }
+     //
+     // New event bundle type.
++
++    //
++    $use_url_to_create = $options['open_from_url'];
+     $event_bundle_type = $options['bundle_type'];
+     $entity_type = $view->getBaseEntityType();
+     if ($entity_type->id() === 'node') {
+@@ -105,6 +109,7 @@ class FullcalendarViewPreprocess {
+       }
+     }
+ 
++
+     // Can the user add a new event?
+     $entity_manager = $this->entityTypeManager;
+     $access_handler = $entity_manager->getAccessControlHandler($entity_type->id());
+@@ -112,6 +117,8 @@ class FullcalendarViewPreprocess {
+     if ($access_handler->createAccess($event_bundle_type)) {
+       $dbl_click_to_create = TRUE;
+     }
++
++    
+     // Pass entity type to twig template.
+     $variables['entity_id'] = $entity_type->id();
+     // Update options for twig.
+@@ -137,6 +144,28 @@ class FullcalendarViewPreprocess {
+     // Field machine name of excluding dates field.
+     $rrule_field = isset($options['rrule']) ? $options['rrule'] : NULL;
+ 
++    //  
++    //Can use to get the value of the select. 
++    $exposed_input = $view->getExposedInput();
++    $selectedCalendarID = $exposed_input['display_name_selective'];
++    // add_form_url and Calendar Select for JS
++    $open_from_url = $options['open_from_url'];
++    $appointment_url = $options['appointment_url'];
++ 
++
++    //However since we want the real user ID we will get the uid entry from the first row of the return set. Since this is a filter every row should have the same value
++    //The field for the UID is users_field_data_node__field_calendar_owner_uid , but probably should make a field to enter this
++    //To Find the correct Field look in the AS section of the view query 
++    $result_rows = $view->result;
++    // Check if there are rows.
++    if (!empty($result_rows)) {
++      // Get the uid from the first row.
++      $first_row = $result_rows[0];
++      $calendar_uid = $first_row->users_field_data_node__field_ical_calendar_owner_uid;
++    }
++    $allOptions = json_encode($options);
++    $selectedEventBundleType = $options['bundle_type'];
++
+     // Default date of the calendar.
+     switch ($options['default_date_source']) {
+       case 'now':
+@@ -472,6 +501,15 @@ class FullcalendarViewPreprocess {
+         'entityType' => $entity_type->id(),
+         // URL of the new event form.
+         'addForm' => isset($add_form) ? $add_form : '',
++        
++        // 
++        //Full URL of Custom new event form.
++        'selectedCalendarDropdown' => isset($selectedCalendarID) ? $selectedCalendarID : '',
++        'selectedCalendar' => $calendar_uid,
++        'allOptions' => $allOptions,
++        'openFromURL' => $open_from_url,
++        'appointmentURL' => $appointment_url,
++
+         // CSRF token.
+         'token' => $token,
+         // Show an event details in a new window (tab).

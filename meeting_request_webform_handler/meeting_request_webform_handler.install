@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * Implements hook_uninstall().
+ */
+function meeting_request_webform_handler_uninstall() {
+  // Load the webform by its ID.
+  $webform = \Drupal::entityTypeManager()
+    ->getStorage('webform')
+    ->load('meeting_request');
+  
+  // Check if the webform exists.
+  if ($webform) {
+    // Delete the webform.
+    $webform->delete();
+  }
+}

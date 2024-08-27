@@ -1,0 +1,27 @@
+ {#
+{% set title = 'title'|t %}
+{% set startDate = date('2019-02-24 10:00', 'Etc/UTC') %}
+{% set endDate = date('2019-02-24 12:00', 'Etc/UTC') %}
+{% set links = calendar_links(title, startDate, endDate, false, 'description', 'address') %}
+{% for link in links %}
+   <a href=\"{{ link.url }}\" class=\"calendar-type-{{ link.type_key }}\"> Add to {{ link.type_name }}</a>
+{% endfor %}
+#}
+
+{% set owner_tz=get_user_timezone(data.request_meeting_with) %}
+{% set my_field_start=now|date("Y-m-d\TH:i:s", owner_tz) %}
+{% set my_field_end=now|date("Y-m-d\TH:i:s", owner_tz) %}
+{{ my_field_start }}
+{{ my_field_end }}
+{% if owner_tz == null %}
+   DO NOT try calendar link
+{% else %}
+   try calendar link
+   {% set title = 'title'|t %}
+   {% set startDate = date('2019-02-24 10:00', 'Etc/UTC') %}
+   {% set endDate = date('2019-02-24 12:00', 'Etc/UTC') %}
+   {% set links = calendar_links(title, startDate, endDate, false, 'description', 'address') %}
+   {% for link in links %}
+      <a href=\"{{ link.url }}\" class=\"calendar-type-{{ link.type_key }}\"> Add to {{ link.type_name }}</a>
+   {% endfor %}
+{% endif %}

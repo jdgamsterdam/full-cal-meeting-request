@@ -1,0 +1,7 @@
+name: 'Meeting Request Webform and Handler'
+type: module
+description: 'Webform with handler to create meeting request and validate that the time of a Meeting is not restricted.'
+core_version_requirement: ^10
+package: Custom
+dependencies:
+  - webform:webform

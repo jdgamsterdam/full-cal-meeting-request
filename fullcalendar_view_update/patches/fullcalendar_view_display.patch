@@ -1,0 +1,48 @@
+diff --git a/./../../fullcalendar_view/src/Plugin/views/style/FullCalendarDisplay.php b/./assets/src/Plugin/views/style/FullCalendarDisplay.php
+old mode 100644
+new mode 100755
+index b5b5a20..25b86be
+--- a/./../../fullcalendar_view/src/Plugin/views/style/FullCalendarDisplay.php
++++ b/./assets/src/Plugin/views/style/FullCalendarDisplay.php
+@@ -15,6 +15,7 @@ use Drupal\fullcalendar_view\TaxonomyColor;
+ use Drupal\views\Plugin\views\style\StylePluginBase;
+ use Symfony\Component\DependencyInjection\ContainerInterface;
+ 
++
+ /**
+  * Style plugin to render content for FullCalendar.
+  *
+@@ -643,13 +644,33 @@ class FullCalendarDisplay extends StylePluginBase {
+     ];
+ 
+     // New event bundle type.
++    
+     $form['bundle_type'] = [
+       '#title' => $this->t('Event bundle (Content) type'),
+       '#description' => $this->t('The bundle (content) type of a new event. Once this is set, you can create a new event by double clicking a calendar entry.'),
+       '#type' => 'select',
+       '#options' => array_merge(['' => t('None')], $bundlesList),
++      //'#options' => array_merge(array_merge(['' => t('None')], $bundlesList),['' => t($url_selector_text)]),
+       '#default_value' => (!empty($this->options['bundle_type'])) ? $this->options['bundle_type'] : '',
+     ];
++
++    // 
++    // Add Check box and Text Field to use URL rather than bundle type
++    $form['open_from_url'] = [
++      '#type' => 'checkbox',
++      '#title' => $this->t('Use a Custom URL to create records'),
++      '#default_value' => (isset($this->options['open_from_url'])) ? $this->options['open_from_url'] : 0,
++      '#description' => $this->t('Use a custom URL to create new appointment instead of a bundle'),
++    ];
++    $form['appointment_url'] = [
++      '#type' => 'textarea',
++      '#maxlength' => 2000,
++      '#allowed_formats' => [],
++      '#title' => $this->t('Custom URL For New Appointments'),
++      '#default_value' => (isset($this->options['appointment_url'])) ? $this->options['appointment_url'] : '',
++      '#description' => $this->t('Custom URL for Open from URL Bundle Type. Used if open_from_url is true. The following replacements can be used in the string: [SLOTDATE]-the date. [SLOTTIME] - The Time.  NOTE the form processing the paramaters should be able to Convert a Standard date (e.g. 2024-08-11T08:00:00Z) to the appropriate field. Note the time will only be replaced if appointment is selected from the Day List, [UID]-The UID of the calendar Owner '),
++    ];
++    
+     // Extra CSS classes.
+     $form['classes'] = [
+       '#type' => 'textfield',

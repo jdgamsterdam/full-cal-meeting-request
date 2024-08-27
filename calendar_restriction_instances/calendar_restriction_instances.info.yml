@@ -1,0 +1,11 @@
+name: 'Calendar Restriction Instances'
+type: module
+description: 'Defines a Calendar Restrictions content type with fields similar to iCal.'
+package: Custom
+core_version_requirement: ^10
+dependencies:
+  - drupal:node
+  - drupal:field
+  - drupal:text
+  - drupal:datetime
+  - drupal:link

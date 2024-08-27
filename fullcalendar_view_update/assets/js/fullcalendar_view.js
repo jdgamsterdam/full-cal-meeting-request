@@ -408,15 +408,19 @@
         // FCMR - Call the function to blackout Dates before Current Date if selected (add if)
 
         //Do on initial setup 
-        setPastDatesToBlack();
+        if (viewSettings.blackoutOldDates==1) {
+          setPastDatesToBlack();
+        }
 
         //Do again if forward or back month button pushed
 
         calendarEl.addEventListener('click' , function(e) {
-          //console.log('Single Click');
           if (e.target.closest('.fc-button-group')) {
             console.log('Clicked element is within a parent with the class "fc-button-group"');
-            setPastDatesToBlack();
+            console.log('Black Out:' + viewSettings.blackoutOldDates)
+            if (viewSettings.blackoutOldDates==1) {
+              setPastDatesToBlack();
+            }
           }
         });
 
@@ -424,6 +428,21 @@
         calendarEl.addEventListener('dblclick' , function(e) {
           let viewIndex = parseInt(this.getAttribute("data-calendar-view-index"));
           let viewSettings = drupalSettings.fullCalendarView[viewIndex];
+
+          // FCMR - If there is a class="fc-time-grid-event at the location then disable since already an appointment then disable abilty to click
+          
+          // Initialize the variable to false
+          let hasParentWithClass = false;
+          // Check if the clicked item or any of its parents have the class 'fc-time-grid-event'
+          let element = e.target;
+          while (element) {
+              if (element.classList && element.classList.contains('fc-time-grid-event')) {
+                  hasParentWithClass = true;
+                  break;
+              }
+              element = element.parentElement;
+          }
+
           // New event window can be open if following conditions match.
           // * The new event content type are specified.
           // * Allow to create a new event by double click.
@@ -438,7 +457,12 @@
           //console.log('openFromURL: ' + viewSettings.openFromURL);
           //console.log('appointmentURL: ' + viewSettings.appointmentURL);
 
-          if (viewSettings.openFromURL==1) {
+          // Set your variable based on the condition
+          if (hasParentWithClass) {
+            console.log("Parent with class 'fc-time-grid-event' found!");
+            alert('Choose a different time for an appointment.');
+          } 
+          else if (viewSettings.openFromURL==1) {
             //
             // Open Page from Other URL - Following is an example
             //builtURL = '/form/meeting-request?subject=My Subject&requested_date=11/01/2024&start_time=10:00&end_time=10:30&calendar_restriction_owner=1'
@@ -458,6 +482,7 @@
               viewSettings.dblClickToCreate &&
               viewSettings.addForm !== ""
             ) {
+
               // Open a new window to create a new event (content).
               window.open(
                   drupalSettings.path.baseUrl +

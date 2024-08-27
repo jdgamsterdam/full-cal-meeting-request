@@ -229,6 +229,16 @@ class FullCalendarDisplay extends StylePluginBase {
       '#title' => $this->t('Display'),
       '#description' => $this->t('Calendar display settings.'),
     ];
+
+    //FCMR - Add Selection to Black out Days Before Today
+    $form['blackout_before_today'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Blackout Days Before Current Date'),
+      '#default_value' => (isset($this->options['blackout_before_today'])) ? $this->options['blackout_before_today'] : 0,
+      '#description' => $this->t('Makes it Obvious to Not Be Able to Book Appointments in the Past'),
+    ];
+   
+
     $fullcalendar_displays = [
       'dayGridMonth' => $this->t('Month'),
       'timeGridWeek' => $this->t('Week'),
@@ -650,12 +660,10 @@ class FullCalendarDisplay extends StylePluginBase {
       '#description' => $this->t('The bundle (content) type of a new event. Once this is set, you can create a new event by double clicking a calendar entry.'),
       '#type' => 'select',
       '#options' => array_merge(['' => t('None')], $bundlesList),
-      //'#options' => array_merge(array_merge(['' => t('None')], $bundlesList),['' => t($url_selector_text)]),
       '#default_value' => (!empty($this->options['bundle_type'])) ? $this->options['bundle_type'] : '',
     ];
-
-    // 
-    // Add Check box and Text Field to use URL rather than bundle type
+ 
+    // FCMR - Add Check box and Text Field to use URL rather than bundle type
     $form['open_from_url'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Use a Custom URL to create records'),
@@ -670,7 +678,7 @@ class FullCalendarDisplay extends StylePluginBase {
       '#default_value' => (isset($this->options['appointment_url'])) ? $this->options['appointment_url'] : '',
       '#description' => $this->t('Custom URL for Open from URL Bundle Type. Used if open_from_url is true. The following replacements can be used in the string: [SLOTDATE]-the date. [SLOTTIME] - The Time.  NOTE the form processing the paramaters should be able to Convert a Standard date (e.g. 2024-08-11T08:00:00Z) to the appropriate field. Note the time will only be replaced if appointment is selected from the Day List, [UID]-The UID of the calendar Owner '),
     ];
-    
+
     // Extra CSS classes.
     $form['classes'] = [
       '#type' => 'textfield',

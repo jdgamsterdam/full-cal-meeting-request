@@ -89,11 +89,11 @@ class FullcalendarViewPreprocess {
     if (!$user->isAnonymous()) {
       $token = $this->tokenGenerator->get($user->id());
     }
-    //
-    // New event bundle type.
 
-    //
+    // FCMR - New event bundle type.
     $use_url_to_create = $options['open_from_url'];
+
+
     $event_bundle_type = $options['bundle_type'];
     $entity_type = $view->getBaseEntityType();
     if ($entity_type->id() === 'node') {
@@ -144,19 +144,16 @@ class FullcalendarViewPreprocess {
     // Field machine name of excluding dates field.
     $rrule_field = isset($options['rrule']) ? $options['rrule'] : NULL;
 
-    //  
-    //Can use to get the value of the select. 
+    //FCMR - Add Items for JS
+    //Can use to get the value of the select. - But not used
     $exposed_input = $view->getExposedInput();
     $selectedCalendarID = $exposed_input['display_name_selective'];
-    // add_form_url and Calendar Select for JS
     $open_from_url = $options['open_from_url'];
     $appointment_url = $options['appointment_url'];
- 
-    //FCMR
-    //We need the UID of the Calendar so that it can be sent to the meeting request form. 
-    //This could either be done from the Calendar Select (exposed filter) or from the columb in the result set.
-    //It seems to be easier to get it from the result set (and since it is a filter it will be the same on every row) 
-    //The field for the UID in the standard setup is users_field_data_node__field_calendar_owner_uid , but probably should make a field to enter this
+    $blackout_before_today = $options['blackout_before_today'];
+
+    //However since we want the real user ID we will get the uid entry from the first row of the return set. Since this is a filter every row should have the same value
+    //The field for the UID is users_field_data_node__field_calendar_owner_uid , but probably should make a field to enter this
     //To Find the correct Field look in the AS section of the view query 
     $result_rows = $view->result;
     // Check if there are rows.
@@ -167,6 +164,8 @@ class FullcalendarViewPreprocess {
     }
     $allOptions = json_encode($options);
     $selectedEventBundleType = $options['bundle_type'];
+
+
 
     // Default date of the calendar.
     switch ($options['default_date_source']) {
@@ -504,13 +503,13 @@ class FullcalendarViewPreprocess {
         // URL of the new event form.
         'addForm' => isset($add_form) ? $add_form : '',
         
-        // 
-        //Full URL of Custom new event form.
+        //FCMR - Full URL of Custom new event form.
         'selectedCalendarDropdown' => isset($selectedCalendarID) ? $selectedCalendarID : '',
         'selectedCalendar' => $calendar_uid,
         'allOptions' => $allOptions,
         'openFromURL' => $open_from_url,
         'appointmentURL' => $appointment_url,
+        'blackoutOldDates' => $blackout_before_today,
 
         // CSRF token.
         'token' => $token,

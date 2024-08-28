@@ -9,7 +9,7 @@ dependencies:
     module:
       - calendar_restriction_instances
 _core:
-  default_config_hash: rviSJRvjGs5WmenQXC5e02c4mkl-7ZOa1IjjHxPnPDs
+  default_config_hash: ALJ_1f9ldqHySvsDheF-_0Hsr7XKxUPamR9jjkj3rQc
 weight: 0
 open: null
 close: null
@@ -30,18 +30,21 @@ elements: |-
   flexbox:
     '#type': webform_flexbox
     requested_date:
-      '#title': 'Requested Date'
       '#type': date
+      '#title': 'Requested Date'
       '#prepopulate': true
       '#required': true
+      '#default_value': today
     start_time:
       '#title': 'Start Time'
       '#type': webform_time
+      '#default_value': now
       '#prepopulate': true
       '#required': true
     end_time:
       '#title': 'End Time'
       '#type': webform_time
+      '#default_value': now
       '#prepopulate': true
       '#required': true
     owner_timezone:
@@ -51,6 +54,86 @@ elements: |-
         {%set calUID = data.calendar_restriction_owner %}
         {{ get_user_timezone(calUID) }}
       '#ajax': true
+  show_appointment_in_your_time:
+    '#type': checkbox
+    '#title': 'Show Appointment in Your Time'
+  flexbox_mytime:
+    '#type': webform_flexbox
+    your_time_zone:
+      '#type': select
+      '#title': 'Your Time Zone'
+      '#options': time_zones
+      '#states':
+        visible:
+          ':input[name="show_appointment_in_your_time"]':
+            checked: true
+      '#default_value': Europe/Paris
+      '#format': raw
+    your_current_time:
+      '#type': webform_computed_twig
+      '#title': 'Your Current Time'
+      '#states':
+        visible:
+          ':input[name="show_appointment_in_your_time"]':
+            checked: true
+      '#display_on': form
+      '#template': |-
+        {% set your_tz = data.your_time_zone %}
+        {% if your_tz is empty %}
+            {% set your_tz = "UTC" %}
+        {% endif %}
+        {{ "now"|date("m/d/Y H:i", your_tz) }}
+      '#ajax': true
+    owner_current_time:
+      '#type': webform_computed_twig
+      '#title': 'Cal Owner Current Time'
+      '#states':
+        visible:
+          ':input[name="show_appointment_in_your_time"]':
+            checked: true
+      '#display_on': form
+      '#template': |-
+        {% set owner_tz = data.owner_timezone %}
+        {% if owner_tz is empty %}
+            {% set owner_tz = "UTC" %}
+        {% endif %}
+        {{ "now"|date("m/d/Y H:i", owner_tz) }}
+      '#ajax': true
+    appointment_in_your_time:
+      '#type': webform_computed_twig
+      '#title': 'Appointment in YOUR Time'
+      '#states':
+        visible:
+          ':input[name="show_appointment_in_your_time"]':
+            checked: true
+      '#display_on': form
+      '#ajax': true
+      '#template': |-
+        {% set dateformat = "Y-m-d H:i:s" %}
+
+        {% set mydate = data.requested_date %}
+        {% set my_start_time = data.start_time %}
+
+        {# The Time zone for the Calendar Owner #}
+        {% set my_tz = data.owner_timezone %}
+        {% if my_tz is empty %}
+            {% set my_tz = "UTC" %}
+        {% endif %}
+
+        {# The Time zone for the Requestor #}
+        {% set your_tz = data.your_time_zone %}
+        {% if your_tz is empty %}
+            {% set your_tz = "UTC" %}
+        {% endif %}
+
+        {# Create Start date variable based on the date selected #}
+        {% set mydate_start = mydate|date(dateformat) %}
+        {# Replace time with the Start Time #}
+        {% set mydate_start = replace_time_in_date(mydate_start,my_start_time) %}
+
+        {% set time_diff = hours_between_time_zones(your_tz,my_tz) ~ 'hours' %} 
+        {% set final_date = mydate_start|date_modify(time_diff)|date(dateFormat) %} 
+        {{ final_date|date(dateformat) }}
   location:
     '#type': textfield
     '#title': Location

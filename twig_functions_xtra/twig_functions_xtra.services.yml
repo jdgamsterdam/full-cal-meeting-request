@@ -3,10 +3,14 @@ services:
     class: Drupal\twig_functions_xtra\Twig\HelloWorldExtension
     tags:
       - { name: twig.extension }
-  check_date_request.twig_extension:
+  get_user_timezone.twig_extension:
     class: Drupal\twig_functions_xtra\Twig\GetUserTimezoneExtension
     tags:
       - { name: twig.extension }
+  hours_between_time_zones.twig_extension:
+    class: Drupal\twig_functions_xtra\Twig\HoursBetweenTimeZonesExtension
+    tags:
+      - { name: twig.extension }      
   view_result_json.twig_extension:
     class: Drupal\twig_functions_xtra\Twig\RenderViewResultJson
     tags:

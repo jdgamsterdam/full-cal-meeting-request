@@ -20,8 +20,16 @@ The best documentation is easy examples, right? :-)
 #### - hello_world()
 Usage example: ```{{ hello_world(') }}``` Simple Function to Test that module is working
 
+#### - replace_time_in_date($dateText,$newTime)
+Allows you to replaces the Only the Time in a Time / Date String
 
-#### - render_block_new
+#### - get_user_timezone($UID)
+Just Gets the Time Zone the User set in their Profile. Defaults to UTC if not Set
+
+#### - hours_between_time_zones($timezone1,$timezone2)
+Another one of these things that is surprisingly hard to get.
+
+#### - render_block_new($block_id, $options)
 you can call block by name anywhere in template: ```{{ render_block_new('block_id', {label: 'Example'|t, some_setting: 'example', setting_array: {value: value}}) }}```
 
 This is used exactly like the function of "Twig Blocks" (https://www.drupal.org/project/twig_blocks). Thanks for the team for creating a good template for Functions that work in Drupal 10 (as much has changed)  

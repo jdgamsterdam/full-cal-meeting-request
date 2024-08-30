@@ -26,8 +26,10 @@ use Eluceo\iCal\Domain\ValueObject\TimeSpan;
 use Eluceo\iCal\Presentation\Factory\CalendarFactory;
 use Eluceo\iCal\Presentation\Factory\DateTimeFactory;
 
-use DateTimeZone as PhpDateTimeZone;
 use Symfony\Component\HttpFoundation\Request;
+
+use DateTime;
+use DateTimeZone;
 
 /**
  * Webform submission handler to create an ICS file.
@@ -54,7 +56,7 @@ class IcsWebformHandler extends WebformHandlerBase {
     $meeting_date = $data['requested_date'];
     $start = $data['start_time'];
     $end = $data['end_time'];
-    $submission_tz = $data['owner_timezone'] ?? 'UTC';
+    $owner_tz = $data['owner_timezone'] ?? 'UTC';
     $location = $data['location'] ?? 'No Location';
     
     // This should work but for some reason online it does not maybe due to a database speed error
@@ -72,21 +74,38 @@ class IcsWebformHandler extends WebformHandlerBase {
       ->range(1, 1);  // Skip the current submission to get the previous one.
     $submission_ids = $query->execute();
 
-    // Retrieve the ID of the previous submission, if exists.
-    $submission_id = !empty($submission_ids) ? reset($submission_ids) : NULL;
+    // Retrieve the ID of the previous submission, if exists.  Need to do it this way as it does not seem to be possible to get the potential ID of the current submiission
+    $submission_id = !empty($submission_ids) ? reset($submission_ids) : 0;
 
+    //Update the Current Submission_id to the current. Only really used for the file name so should cause a problem. But Probably should add something do deal with ics files not being overwritten 
+    $submission_id = $submission_id + 1;
+
+    //Date must be in the follwing format to work 
+    //$format = 'Y-m-d H:i:s';
     //$dateStart = '2024-08-04 10:30:45';
-    //$dateEnd = '2024-08-04 12:30:45';
 
-    $dateStart = $meeting_date.' '.$start;
+    $dateStart = $meeting_date.' '.$start;  
     $dateEnd = $meeting_date.' '.$end;
-    $format = 'Y-m-d H:i:s';
-   
-    $timeZone = new \DateTimeZone($submission_tz);
-    $isUTC = True;
 
-    $updated_start_time_UTC = new EluceoDateTime(new \DateTime($dateStart), $isUTC, $timeZone);
-    $updated_end_time_UTC = new EluceoDateTime(new \DateTime($dateEnd), $isUTC, $timeZone);
+    // Convert to UTC but with out Z 
+
+    $dateStart_UTC = new DateTime($dateStart);
+    // Convert to UTC timezone
+    $dateStart_UTC->setTimezone(new DateTimeZone('UTC'));
+    // Format the DateTime to UTC text
+    $dateStart_UTC_Text = $dateStart_UTC->format('Ymd\THis\Z');
+
+    $dateEnd_UTC = new DateTime($dateEnd);
+    // Convert to UTC timezone
+    $dateEnd_UTC->setTimezone(new DateTimeZone('UTC'));
+    // Format the DateTime to UTC text
+    $dateEnd_UTC_Text = $dateEnd_UTC->format('Ymd\THis\Z');
+
+    
+    $isUTC = True;
+    //This is how it is with TZ but does not seem to work. $updated_start_time_UTC = new EluceoDateTime(new \DateTime($dateStart), $isUTC, $timeZone);
+    $updated_start_time_UTC = new EluceoDateTime(new \DateTime($dateStart), $isUTC);
+    $updated_end_time_UTC = new EluceoDateTime(new \DateTime($dateEnd), $isUTC);
 
     // Create the ICS event.
     $event = new Event();
@@ -102,6 +121,19 @@ class IcsWebformHandler extends WebformHandlerBase {
     // Save the ICS file.
     $ics_content = (string) $calendarComponent;   
      
+    //Since the iCal Module not playing nicely with Drupal "manually" replace the DTSTART and DTEND with the addition of the Time Zone and Get rid of the Z at the end so it is not UTC
+
+    $START_W_TZ = "DTSTART;TZID=".$owner_tz.":";
+    $END_W_TZ = "DTEND;TZID=".$owner_tz.":";
+    
+    //Add Time Zone
+    $ics_content = str_replace("DTSTART:",$START_W_TZ,$ics_content);
+    $ics_content = str_replace("DTEND:",$END_W_TZ,$ics_content);
+   
+    //Replace Start and End with Z (as it now has TimeZones)
+    $ics_content = str_replace($dateStart_UTC_Text,rtrim($dateStart_UTC_Text, 'Z'),$ics_content);
+    $ics_content = str_replace($dateEnd_UTC_Text,rtrim($dateEnd_UTC_Text, 'Z'),$ics_content);
+  
     $ics_filename = $submission_id.'_'.$updated_start_time_UTC->getDateTime()->getTimestamp().'_'.$updated_end_time_UTC->getDateTime()->getTimestamp().'.ics';
 
     // Get the file system service.
@@ -130,12 +162,10 @@ class IcsWebformHandler extends WebformHandlerBase {
       $my_file_URI = $my_file->getFileUri();
       $file_id = $my_file->id();
 
-      //$testfile = 'http://localhost/system/files/webform/meeting_request/146/1723802400_1723806000.ics';
 
       $data['ics_file'] = $file_id;
       // Update the submission data.
       $webform_submission->setData($data);
-      //. 'File Name'. $my_file_URI . 'ID:' . $file_id . 'All: '.json_encode($data)
       // Notify the user of success.
       \Drupal::messenger()->addMessage(t('ics file successfully saved to: ' . $ics_path  ));
     } 

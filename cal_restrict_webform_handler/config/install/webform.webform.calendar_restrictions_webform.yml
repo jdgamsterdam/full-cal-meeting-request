@@ -250,13 +250,13 @@ handlers:
   example:
     id: cal_restrict_webform_handler
     handler_id: cal_restrict_webform_handler
-    label: 'Update Custom Restrictions Table'
+    label: 'Creates Calendar Restriction Instance Nodes'
     notes: ''
     status: true
     conditions: {  }
     weight: 0
     settings:
-      message: 'You can make an appointment now'
+      message: 'Instances have been created'
       debug: false
       custom_setting: default_value
 variants: {  }

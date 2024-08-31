@@ -190,6 +190,12 @@ use Drupal\user\UserInterface;
         }
         else {
           //DO First DOW before Loop through new dates so only rows will be added if the DOW of the added day equals the restriction
+
+          //For Time Zone formatting Reasons Resent the First Start and End Times 
+
+          $updated_start_time = date('Y-m-d\TH:i:s', strtotime($updated_start_time));
+          $updated_end_time = date('Y-m-d\TH:i:s', strtotime($updated_end_time));
+
           $updated_start_time_dow = date('l', $start_time);
           for ($day_out = 0; $day_out <= $current_duration; $day_out++) {
             if ($updated_start_time_dow==$current_dow) {

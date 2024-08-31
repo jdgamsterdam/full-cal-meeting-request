@@ -1,4 +1,0 @@
-cp ./assets/js/fullcalendar_view.js /opt/drupal/web/modules/contrib/fullcalendar_view/js/fullcalendar_view.js
-cp ./assets/src/Plugin/views/style/FullCalendarDisplay.php /opt/drupal/web/modules/contrib/fullcalendar_view/src/Plugin/views/style/FullCalendarDisplay.php
-cp ./assets/src/FullcalendarViewPreprocess.php /opt/drupal/web/modules/contrib/fullcalendar_view/src/FullcalendarViewPreprocess.php
-cp ./restore_fc.sh /opt/drupal/web/modules/contrib/fullcalendar_view/restore_fc.sh

@@ -1,8 +1,8 @@
 diff --git a/./../../fullcalendar_view/fullcalendar_view.info.yml b/./assets/fullcalendar_view.info.yml
-index 92c6148..5d9b582 100644
+index 392c6e8..5d9b582 100644
 --- a/./../../fullcalendar_view/fullcalendar_view.info.yml
 +++ b/./assets/fullcalendar_view.info.yml
-@@ -1,14 +1,9 @@
+@@ -1,6 +1,6 @@
  name: Full Calendar View Plugin
  type: module
 -description: 'A view plugin to present contents in FullCalendar view.'
@@ -10,11 +10,3 @@ index 92c6148..5d9b582 100644
  package: Views
  core_version_requirement: ^9.2.0 || ^10 || ^11
  
- dependencies:
-   - drupal:views
-   - drupal:datetime
--
--# Information added by Drupal.org packaging script on 2024-08-09
--version: '5.2.1'
--project: 'fullcalendar_view'
--datestamp: 1723181915

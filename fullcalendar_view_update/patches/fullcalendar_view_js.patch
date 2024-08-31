@@ -1,8 +1,42 @@
 diff --git a/./../../fullcalendar_view/js/fullcalendar_view.js b/./assets/js/fullcalendar_view.js
-index 01f60b5..ddbb2d7 100644
+index 01f60b5..838af3e 100644
 --- a/./../../fullcalendar_view/js/fullcalendar_view.js
 +++ b/./assets/js/fullcalendar_view.js
-@@ -42,7 +42,7 @@
+@@ -13,13 +13,32 @@
+   // Date entry clicked.
+   var slotDate;
+ 
++
++  // FCMR - Function to Black out Dates before todays date if selection chosen in View Seetings 
++  function setPastDatesToBlack() {
++    // Get today's date in the format 'YYYY-MM-DD'
++    const today = new Date().toISOString().split('T')[0];
++
++    // Select all td elements with the class 'fc-day'
++    const days = document.querySelectorAll('td.fc-day');
++
++    // Loop through each day and check its data-date attribute
++    days.forEach(day => {
++        const date = day.getAttribute('data-date');
++        if (date < today) {
++            // Set background color to black for dates before today
++            day.style.backgroundColor = 'black';
++        }
++    });
++  }
++
+   /**
+    * @see https://fullcalendar.io/docs/v4/eventSourceSuccess
+    */
+   function eventSourceSuccessRenderingBackground(content) {
+     for(let i = 0; i < content.length; i++){
+       content[i].rendering = 'background';
+-    }
++    }   
+   }
+ 
+   /**
+@@ -42,7 +61,7 @@
      let eventListTitleEle = info.el.getElementsByClassName('fc-list-item-title');
      if(eventListTitleEle.length > 0) {
        if (info.event.url) {
@@ -11,22 +45,78 @@ index 01f60b5..ddbb2d7 100644
        }
        else {
          eventListTitleEle[0].innerHTML = info.event.title;
-@@ -395,7 +395,31 @@
+@@ -353,7 +372,7 @@
+         calendarOptions.defaultDate = initialDate;
+       }
+ 
+-      // Initial the calendar.
++      // Initialize the calendar.
+       if (calendarEl) {
+         if (drupalSettings.calendar) {
+           drupalSettings.calendar[viewIndex] = new FullCalendar.Calendar(calendarEl, calendarOptions);
+@@ -386,21 +405,84 @@
+           localeSelectorEl.style.display = "none";
+         }
+ 
++        // FCMR - Call the function to blackout Dates before Current Date if selected (add if)
++
++        //Do on initial setup 
++        if (viewSettings.blackoutOldDates==1) {
++          setPastDatesToBlack();
++        }
++
++        //Do again if forward or back month button pushed
++
++        calendarEl.addEventListener('click' , function(e) {
++          if (e.target.closest('.fc-button-group')) {
++            console.log('Clicked element is within a parent with the class "fc-button-group"');
++            console.log('Black Out:' + viewSettings.blackoutOldDates)
++            if (viewSettings.blackoutOldDates==1) {
++              setPastDatesToBlack();
++            }
++          }
++        });
++
+         // Double click event.
+         calendarEl.addEventListener('dblclick' , function(e) {
+           let viewIndex = parseInt(this.getAttribute("data-calendar-view-index"));
+           let viewSettings = drupalSettings.fullCalendarView[viewIndex];
++
++          // FCMR - If there is a class="fc-time-grid-event at the location then disable since already an appointment then disable abilty to click
++          
++          // Initialize the variable to false
++          let hasParentWithClass = false;
++          // Check if the clicked item or any of its parents have the class 'fc-time-grid-event'
++          let element = e.target;
++          while (element) {
++              if (element.classList && element.classList.contains('fc-time-grid-event')) {
++                  hasParentWithClass = true;
++                  break;
++              }
++              element = element.parentElement;
++          }
++
+           // New event window can be open if following conditions match.
+           // * The new event content type are specified.
            // * Allow to create a new event by double click.
            // * User has the permission to create a new event.
            // * The add form for the new event type is known.
 -          if (
-+        
-+          //
++          // FCMR - Time Space is Empty on Day Select
 +          //console.log('Add form: ' + viewSettings.addForm);
 +          //console.log('Selected Calendar: ' + viewSettings.selectedCalendar);
 +          //console.log('slotDate: ' + slotDate);
-+          //console.log('allOptions: ' + viewSettings.allOptions);
++          console.log('allOptions: ' + viewSettings.allOptions);
 +          //console.log('eventBundleType: ' + viewSettings.selectedEventBundleType);
 +          //console.log('openFromURL: ' + viewSettings.openFromURL);
 +          //console.log('appointmentURL: ' + viewSettings.appointmentURL);
 +
-+          if (viewSettings.openFromURL==1) {
++          // Set your variable based on the condition
++          if (hasParentWithClass) {
++            console.log("Parent with class 'fc-time-grid-event' found!");
++            alert('Choose a different time for an appointment.');
++          } 
++          else if (viewSettings.openFromURL==1) {
 +            //
 +            // Open Page from Other URL - Following is an example
 +            //builtURL = '/form/meeting-request?subject=My Subject&requested_date=11/01/2024&start_time=10:00&end_time=10:30&calendar_restriction_owner=1'
@@ -44,7 +134,13 @@ index 01f60b5..ddbb2d7 100644
                slotDate &&
                viewSettings.eventBundleType &&
                viewSettings.dblClickToCreate &&
-@@ -409,11 +433,10 @@
+               viewSettings.addForm !== ""
+             ) {
++
+               // Open a new window to create a new event (content).
+               window.open(
+                   drupalSettings.path.baseUrl +
+@@ -409,11 +491,10 @@
                    slotDate +
                    "&start_field=" +
                    viewSettings.startField +

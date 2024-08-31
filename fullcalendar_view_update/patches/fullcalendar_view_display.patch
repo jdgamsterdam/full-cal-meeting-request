@@ -1,7 +1,7 @@
 diff --git a/./../../fullcalendar_view/src/Plugin/views/style/FullCalendarDisplay.php b/./assets/src/Plugin/views/style/FullCalendarDisplay.php
 old mode 100644
 new mode 100755
-index b5b5a20..25b86be
+index 6b4be51..36281ca
 --- a/./../../fullcalendar_view/src/Plugin/views/style/FullCalendarDisplay.php
 +++ b/./assets/src/Plugin/views/style/FullCalendarDisplay.php
 @@ -15,6 +15,7 @@ use Drupal\fullcalendar_view\TaxonomyColor;
@@ -12,7 +12,107 @@ index b5b5a20..25b86be
  /**
   * Style plugin to render content for FullCalendar.
   *
-@@ -643,13 +644,33 @@ class FullCalendarDisplay extends StylePluginBase {
+@@ -90,7 +91,7 @@ class FullCalendarDisplay extends StylePluginBase {
+     TaxonomyColor $taxonomyColorService,
+     ModuleHandlerInterface $module_handler,
+     EntityTypeManagerInterface $entity_type_manager,
+-    EntityTypeBundleInfo $entity_type_bundle_info,
++    EntityTypeBundleInfo $entity_type_bundle_info
+   ) {
+     parent::__construct($configuration, $plugin_id, $plugin_definition);
+     $this->taxonomyColorService = $taxonomyColorService;
+@@ -228,6 +229,16 @@ class FullCalendarDisplay extends StylePluginBase {
+       '#title' => $this->t('Display'),
+       '#description' => $this->t('Calendar display settings.'),
+     ];
++
++    //FCMR - Add Selection to Black out Days Before Today
++    $form['blackout_before_today'] = [
++      '#type' => 'checkbox',
++      '#title' => $this->t('Blackout Days Before Current Date'),
++      '#default_value' => (isset($this->options['blackout_before_today'])) ? $this->options['blackout_before_today'] : 0,
++      '#description' => $this->t('Makes it Obvious to Not Be Able to Book Appointments in the Past'),
++    ];
++   
++
+     $fullcalendar_displays = [
+       'dayGridMonth' => $this->t('Month'),
+       'timeGridWeek' => $this->t('Week'),
+@@ -251,7 +262,7 @@ class FullCalendarDisplay extends StylePluginBase {
+       '#description' => $this->t(
+         'Left side buttons. Buttons are separated by commas or space. See the %fullcalendar_doc for available buttons.',
+         [
+-          '%fullcalendar_doc' => Link::fromTextAndUrl($this->t('Fullcalendar documentation'), Url::fromUri('https://fullcalendar.io/docs/v4/header', ['attributes' => ['target' => '_blank']]))->toString(),
++          '%fullcalendar_doc' => Link::fromTextAndUrl($this->t('Fullcalendar documentation'), Url::fromUri('https://fullcalendar.io/docs/v4/header', array('attributes' => array('target' => '_blank'))))->toString(),
+         ]
+       ),
+     ];
+@@ -263,7 +274,7 @@ class FullCalendarDisplay extends StylePluginBase {
+       '#title' => $this->t('Display toggles'),
+       '#description' => $this->t('Shown as buttons on the right side of the calendar view. See the %fullcalendar_doc.',
+           [
+-            '%fullcalendar_doc' => Link::fromTextAndUrl($this->t('Fullcalendar "Views" documentation'), Url::fromUri('https://fullcalendar.io/docs/v4', ['attributes' => ['target' => '_blank']]))->toString(),
++            '%fullcalendar_doc' => Link::fromTextAndUrl($this->t('Fullcalendar "Views" documentation'), Url::fromUri('https://fullcalendar.io/docs/v4', array('attributes' => array('target' => '_blank'))))->toString(),
+           ]),
+     ];
+     // Default view.
+@@ -306,7 +317,7 @@ class FullCalendarDisplay extends StylePluginBase {
+       '#default_value' => (empty($this->options['firstDay'])) ? '0' : $this->options['firstDay'],
+       '#title' => $this->t('First Day'),
+     ];
+-    // MinTime.
++    // MinTime
+     $form['minTime'] = [
+       '#type' => 'datetime',
+       '#fieldset' => 'display',
+@@ -316,7 +327,7 @@ class FullCalendarDisplay extends StylePluginBase {
+       '#default_value' => new DrupalDateTime(!empty($this->options['minTime']) ? $this->options['minTime'] : '2000-01-01 00:00:00'),
+       '#required' => TRUE,
+     ];
+-    // MaxTime.
++    // MaxTime
+     $form['maxTime'] = [
+       '#type' => 'datetime',
+       '#fieldset' => 'display',
+@@ -334,15 +345,15 @@ class FullCalendarDisplay extends StylePluginBase {
+       '#title' => $this->t('Day/Week are links'),
+       '#description' => $this->t('If this option is selected, day/week names will be linked to navigation views.'),
+     ];
+-    // Time format.
++    // Time format
+     $form['timeFormat'] = [
+       '#fieldset' => 'display',
+       '#type' => 'textfield',
+       '#title' => $this->t('Time Format settings for month view'),
+       '#default_value' => (isset($this->options['timeFormat'])) ? $this->options['timeFormat'] : 'hh:mm a',
+-      '#description' => $this->t('See %momentjs_doc for available formatting options. <br />Leave it blank to use the default format "hh:mm a".<br />Set it to [ ] if you do not want Fullcalendar View to prepend Title Field with any time at all.', [
+-        '%momentjs_doc' => Link::fromTextAndUrl($this->t('MomentJS’s formatting characters'), Url::fromUri('http://momentjs.com/docs/#/displaying/format/', ['attributes' => ['target' => '_blank']]))->toString(),
+-      ]),
++      '#description' => $this->t('See %momentjs_doc for available formatting options. <br />Leave it blank to use the default format "hh:mm a".<br />Set it to [ ] if you do not want Fullcalendar View to prepend Title Field with any time at all.', array(
++        '%momentjs_doc' => Link::fromTextAndUrl($this->t('MomentJS’s formatting characters'), Url::fromUri('http://momentjs.com/docs/#/displaying/format/', array('attributes' => array('target' => '_blank'))))->toString(),
++      )),
+       '#size' => 20,
+     ];
+     // Allow/disallow event overlap.
+@@ -599,7 +610,7 @@ class FullCalendarDisplay extends StylePluginBase {
+       // Content type colors.
+       $form['color_bundle'][$id] = [
+         '#title' => $label,
+-        '#default_value' => $this->options['color_bundle'][$id] ?? '#3a87ad',
++        '#default_value' => isset($this->options['color_bundle'][$id]) ? $this->options['color_bundle'][$id] : '#3a87ad',
+         '#type' => 'color',
+       ];
+     }
+@@ -616,7 +627,7 @@ class FullCalendarDisplay extends StylePluginBase {
+       '#description' => $this->t('You can generate an valid rrule string via <a href=":tool-url" target="_blank">the online toole</a><br><a href=":doc-url" target="_blank">See the documentation</a> for more about RRule.',
+           [
+             ':tool-url' => 'https://jakubroztocil.github.io/rrule/',
+-            ':doc-url' => 'https://github.com/jakubroztocil/rrule',
++            ':doc-url' => 'https://github.com/jakubroztocil/rrule'
+           ]),
+       '#type' => 'select',
+       '#empty_value' => '',
+@@ -643,6 +654,7 @@ class FullCalendarDisplay extends StylePluginBase {
      ];
  
      // New event bundle type.
@@ -20,14 +120,12 @@ index b5b5a20..25b86be
      $form['bundle_type'] = [
        '#title' => $this->t('Event bundle (Content) type'),
        '#description' => $this->t('The bundle (content) type of a new event. Once this is set, you can create a new event by double clicking a calendar entry.'),
-       '#type' => 'select',
+@@ -650,6 +662,23 @@ class FullCalendarDisplay extends StylePluginBase {
        '#options' => array_merge(['' => t('None')], $bundlesList),
-+      //'#options' => array_merge(array_merge(['' => t('None')], $bundlesList),['' => t($url_selector_text)]),
        '#default_value' => (!empty($this->options['bundle_type'])) ? $this->options['bundle_type'] : '',
      ];
-+
-+    // 
-+    // Add Check box and Text Field to use URL rather than bundle type
++ 
++    // FCMR - Add Check box and Text Field to use URL rather than bundle type
 +    $form['open_from_url'] = [
 +      '#type' => 'checkbox',
 +      '#title' => $this->t('Use a Custom URL to create records'),
@@ -42,7 +140,51 @@ index b5b5a20..25b86be
 +      '#default_value' => (isset($this->options['appointment_url'])) ? $this->options['appointment_url'] : '',
 +      '#description' => $this->t('Custom URL for Open from URL Bundle Type. Used if open_from_url is true. The following replacements can be used in the string: [SLOTDATE]-the date. [SLOTTIME] - The Time.  NOTE the form processing the paramaters should be able to Convert a Standard date (e.g. 2024-08-11T08:00:00Z) to the appropriate field. Note the time will only be replaced if appointment is selected from the Day List, [UID]-The UID of the calendar Owner '),
 +    ];
-+    
++
      // Extra CSS classes.
      $form['classes'] = [
        '#type' => 'textfield',
+@@ -712,6 +741,7 @@ class FullCalendarDisplay extends StylePluginBase {
+     return $this;
+   }
+ 
++
+   /**
+    * Options form submit handle function.
+    *
+@@ -721,7 +751,7 @@ class FullCalendarDisplay extends StylePluginBase {
+     $options = &$form_state->getValue('style_options');
+     // As the color pickup element, here has to use getUserInput().
+     $input_value = $form_state->getUserInput();
+-    $input_colors = $input_value['style_options']['color_taxonomies'] ?? [];
++    $input_colors = isset($input_value['style_options']['color_taxonomies']) ? $input_value['style_options']['color_taxonomies'] : [];
+     // Save the input of colors.
+     foreach ($input_colors as $id => $color) {
+       if (!empty($color)) {
+@@ -768,10 +798,7 @@ class FullCalendarDisplay extends StylePluginBase {
+     return TRUE;
+   }
+ 
+-  /**
+-   *
+-   */
+-  protected function buildOptionsFormGoogleCalendar(array &$form, FormStateInterface $form_state) {
++protected function buildOptionsFormGoogleCalendar(array &$form, FormStateInterface $form_state) {
+     $form['fetchGoogleHolidays'] = [
+       '#type' => 'checkbox',
+       '#fieldset' => 'display',
+@@ -802,7 +829,7 @@ class FullCalendarDisplay extends StylePluginBase {
+         '#description' => $this->t(
+           'You can get an API Key following the procedure outlined <a href=":url" target="_blank">here</a>.',
+           [
+-            ':url' => 'https://fullcalendar.io/docs/google-calendar',
++            ':url' => 'https://fullcalendar.io/docs/google-calendar'
+           ],
+         ),
+         '#states' => [
+@@ -1031,5 +1058,4 @@ class FullCalendarDisplay extends StylePluginBase {
+       'en.zw#holiday@group.v.calendar.google.com' => $this->t('Holidays in Zimbabwe'),
+     ];
+   }
+-
+ }

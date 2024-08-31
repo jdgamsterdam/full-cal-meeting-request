@@ -75,7 +75,7 @@ The following can be imported with the Single Import: /admin/config/development/
 Once Imported (for whatever reason) Open the Feed Type and Save (creating individual feeds will cause an error unless this is done) and check that the form display is correct
 
 
-5. Create specific Feed for your Calendar using the Feed type (above) "Outlook To Calendar Restrictions" .
+5. (Can alse be done at very end) Create specific Feed for your Calendar using the Feed type (above) "Outlook To Calendar Restrictions" .
   There should be a custom field to enter the User ID for the Calendar Owner
   You could use a calendar with actual subjects, but by default I use the Free/Busy Calendar (for Privacy)
 
@@ -100,12 +100,12 @@ Once Imported (for whatever reason) Open the Feed Type and Save (creating indivi
       1) This is a Clickable calendar where people can click on a day and that will open up a webform to create an appointment for that day.
       2) User will not Show up in the Select List of available calendars unless they have at least 1 time restriction set 
       3) There may be conflict with the standard Captcha form in that it thinks the calendar is a form.  You could probably remove this through JavaScript but I changed what Captcha I was using
-      4) To get the view to work properly, there standard fullcalendar_view must be manually patched (I could not get this to work in a module) 
-         i.) There is a directory called fullcalendar_view_update
-         ii.) from that directory run the script apply_patches.sh  
-         iii.) if things do not work check the location of your fullcalendar_view module. Patching in Drupal is very tricky and pick on directory locations
-         iv.) These patches make some changes to the standard Full Calendar View Module that allow the creation of an appointment via a Webform . It might be possible to do as overrides but I could not make it work.
-      5) The system is setup to be integrated with CiviCRM (e.g. the Name you select in the calendar comes from the CiviCRM Record). While this is not really necessary, it adds a great deal of functionality. And, as I am on the advisory council for CiviCRM, it is my duty to encourage its use.  Or feel free to rewrite the code without it. It would be quite simple to make the User Name selection use the User.ID.  None of the base modules rely on CiviCRM, just the Meeting Request form and Calendar.
+      4) The system is setup to be integrated with CiviCRM (e.g. the Name you select in the calendar comes from the CiviCRM Record). While this is not really necessary, it adds a great deal of functionality. And, as I am on the advisory council for CiviCRM, it is my duty to encourage its use.  Or feel free to rewrite the code without it. It would be quite simple to make the User Name selection use the User.ID.  None of the base modules rely on CiviCRM, just the Meeting Request form and Calendar.
    g. The Calendar Owner and Ics Fields are set to "Private" which means if you are testing as Admin you will see them, but they should not show for normal users. 
-
+8. To get the view to work properly, there standard fullcalendar_view must be manually patched (I could not get this to work in a module) 
+  a. There is a directory called fullcalendar_view_update
+  b. From that directory run the script apply_patches.sh (you might have to chmod +x apply_patches.sh to make it executable ).  
+  c. If things do not work check the location of your fullcalendar_view module. Patching in Drupal is very tricky and pick on directory locations.  You can either regenerate the patches or just overwrite the existing (3) files. This can be done with the file apply_via_copy.sh
+  d. These patches make some changes to the standard Full Calendar View Module that allow the creation of an appointment via a Webform . It might be possible to do as overrides but I could not make it work.
+9. Make sure to do a DRUSH UPDB (or via the web interface) at the end
 

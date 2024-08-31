@@ -167,70 +167,15 @@ use Drupal\user\UserInterface;
     $submission_id = $webform_submission->id();
     $webform_id = $webform_submission->getWebform()->id();
 
-    //First Delete all records related to the submission ID. 
-
-    $delete_exising_submissions_sql = file_get_contents($sql_file_dir.'delete_existing_submissions.sql');
-
-    //Due to the problems with passing quotes I generally try to keep them out of files which makes it hard to use traditional parameters, so I just force a FIND and replace for a string in the SQL
-
-    $delete_exising_submissions_sql = str_replace("MY_OWNER_ID",$calendar_instance_owner,$delete_exising_submissions_sql);
-    $delete_existing_records = $database->query($delete_exising_submissions_sql);
-
-    //Loop thorugh each Record in the webform and write to the table for calendar restrictions
-
-    foreach ($calendar_restrictions_fields as $calendar_restriction) {
-      $dow = $calendar_restriction['dow'];
-      $start_time = $calendar_restriction['start_time'];
-      $end_time = $calendar_restriction['end_time'];
-      $duration_days = $calendar_restriction['duration_days'];
-
-      $fields = [
-        'id' => $id, //Auto Increment so null should be good
-        'dow' => $dow,
-        'start_time' => $start_time,
-        'end_time' => $end_time,
-        'duration_days' => $duration_days,
-        'calendar_instance_owner' => $calendar_instance_owner,
-        'calendar_instance_time_zone' => $calendar_instance_owner_tz,
-        'webform_submission_id' => $submission_id,
-        'webform_id' => $webform_id,
-      ];
-  
-      // Insert the record.
-      $connection->merge('calendar_restrictions')
-        ->key(['id' => $id])
-        ->fields($fields)
-        ->execute();
-      }
-
-    //Now Create the individual nodes for the restrictions. We use nodes (rather than a custom entity) so that they better fit work with views, Drupal security, and the problem that FEEDS will create a node great but not an Entity.
-    // Fields in the Table calendar_restrictions are "id","dow","start_time","end_time","duration_days", "calendar_instance_owner", "webform_submission_id"
-
-    //Make sure that Node Type exists
-    if (NodeType::load($content_type)) { 
-      //We can create the complete list of instances for the restrictions
-      $exising_restrictions_sql = file_get_contents($sql_file_dir.'owner_restriction_instances.sql');
-      $exising_restrictions_sql = str_replace("MY_OWNER_ID",$calendar_instance_owner,$exising_restrictions_sql);
-      $query_existing_records = $database->query($exising_restrictions_sql);
-      //$owner_tz = new \DateTimeZone($calendar_instance_owner_tz);
-      //Note the for loop can be less than 1000 because in no world will you ever have 1000 restrictions set up 
-      for ($current_record = 0; $current_record <= 1000; $current_record++) {
-        // Do something
-        try {
-          // Try to get the next record in the array
-          $query_result_record = $query_existing_records->fetchAssoc();  //fetches next record (first time gets the first record)
-          echo "Processed item: $item\n";
-        } catch (Exception $e) {
-          echo "No More Records: " . $e->getMessage() . "\n";
-          break; // Exit the loop on failure
-        } 
-        $current_dow = $query_result_record['dow'];
-        $current_start_time = (string) $query_result_record['start_time'];
-        $current_end_time = (string) $query_result_record['end_time'];
-        $current_duration = $query_result_record['duration_days'];
-
-        //Using Nodes for Insert
-
+    //Make sure the Node Type Exists and then Loop Through Each of the REcords to Create a Instance
+    if (NodeType::load($content_type)) {
+      //Loop thorugh each Record in the webform and write to the table for calendar restrictions
+      foreach ($calendar_restrictions_fields as $calendar_restriction) {
+        $current_dow = $calendar_restriction['dow'];
+        $current_start_time = (string) $calendar_restriction['start_time'];
+        $current_end_time = (string) $calendar_restriction['end_time'];
+        $current_duration = $calendar_restriction['duration_days'];
+        //Now Create the individual nodes for the restrictions. We use nodes (rather than a custom entity) so that they better fit work with views, Drupal security, and the problem that FEEDS will create a node great but not an Entity.
         // This variable will be added in each loop
         $current_date = (string) date('Y-m-d');
         //Replace Time in current Date 
@@ -280,10 +225,10 @@ use Drupal\user\UserInterface;
           }
         }
       }
-    }  
-    else {
-      $my_message = 'Restriction Table Does Not Exist';
     }
+    else {
+      $my_message = 'Node Type Not Exist';
+    }   
     $this->messenger()->addWarning($this->t($my_message), TRUE);
   }
 

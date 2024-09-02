@@ -469,10 +469,18 @@
             builtURL = viewSettings.appointmentURL;
             //Replace UID
             builtURL = builtURL.replace('[UID]', viewSettings.selectedCalendar);
+
+            //Make Date Object
+            mydateTime = new Date(slotDate);
+            //Replace SLOTDATETIME
+            builtURL = builtURL.replace('[SLOTDATETIME]', slotDate); 
             //Replace SLOTDATE
-            builtURL = builtURL.replace('[SLOTDATE]', slotDate); 
+            mydate = mydateTime.toISOString().split('T')[0];
+
+            builtURL = builtURL.replace('[SLOTDATE]', mydate); 
             //Replace SLOTTIME 
-            builtURL = builtURL.replace('[SLOTTIME]', slotDate);
+            mytime = mydateTime.toISOString().split('T')[1].split('Z')[0];
+            builtURL = builtURL.replace('[SLOTTIME]', mytime);
             console.log(` BuiltURL: ${builtURL}`);
             window.open(builtURL,"_blank");
           }

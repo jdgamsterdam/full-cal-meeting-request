@@ -15,6 +15,8 @@ dependencies:
     - node
     - user
     - views_selective_filters
+_core:
+  default_config_hash: Lh5zv17_VvFLj6Nw42l2iAh_bo05lrUi8Sen7wL38uU
 id: public_calendar
 label: 'Public Calendar'
 module: views
@@ -927,7 +929,6 @@ display:
             article: '#3a87ad'
             calendar_restriction_instances: '#3a87ad'
             page: '#3a87ad'
-            webform: '#3a87ad'
           rrule: ''
           dialogModal: false
           dialogCanvas: false
@@ -937,13 +938,14 @@ display:
           maxTime: '23:59:00'
           bundle_type: ''
           classes: ''
+          blackout_before_today: 1
           fetchGoogleHolidays: 0
           googleHolidaysSettings:
             googleCalendarAPIKey: ''
             googleCalendarGroup: ''
             renderGoogleHolidaysAsBackground: 0
           open_from_url: 1
-          appointment_url: '/form/meeting-request?subject=My Subject&requested_date=[SLOTDATE]&start_time=[SLOTTIME]&calendar_restriction_owner=[UID]'
+          appointment_url: '/form/meeting-request?summary=My Subject&requested_date=[SLOTDATE]&start_time=[SLOTTIME]&calendar_restriction_owner=[UID]'
       row:
         type: 'entity:node'
         options:

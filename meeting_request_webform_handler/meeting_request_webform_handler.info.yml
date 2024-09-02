@@ -5,6 +5,5 @@ core_version_requirement: ^10
 package: Custom
 dependencies:
   - webform:webform
-  - drupal:webform_ics_handler
   - drupal:fullcalendar_view
   - drupal:views_selective_filters

@@ -76,12 +76,14 @@ class MeetingRequestValidationHandler extends WebformHandlerBase {
     $nids_end = $end_node_query->execute();  
 
     // Check if Start_time before End Time and check  If any items are there (e.g. the result set is not null), then there is a problem and it is not a valid meeting time 
-    if ($data['end_time']<=$data['start_time']) {
-      $my_message='Start Time must be before End Time.';
+    
+    //if ($data['end_time']<=$data['start_time']) {
+      // However, since this is Computed now this should never Give an Error
+    //  $my_message='Start Time must be before End Time.';
       // Cancel the validation
-      $form_state->setErrorByName('start_time', $this->t($my_message));
-    }
-    else if (!empty($nids_start)||!empty($nids_end)) {
+    //  $form_state->setErrorByName('start_time', $this->t($my_message));
+    //}
+    if (!empty($nids_start)||!empty($nids_end)) {
       //Since there is a result it is not valid
       $my_message='There is a conflict with the date and time chosen. Look at the calendar and choose an alternate time.';
       // Cancel the validation

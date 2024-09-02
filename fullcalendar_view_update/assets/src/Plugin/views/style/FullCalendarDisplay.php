@@ -676,7 +676,7 @@ class FullCalendarDisplay extends StylePluginBase {
       '#allowed_formats' => [],
       '#title' => $this->t('Custom URL For New Appointments'),
       '#default_value' => (isset($this->options['appointment_url'])) ? $this->options['appointment_url'] : '',
-      '#description' => $this->t('Custom URL for Open from URL Bundle Type. Used if open_from_url is true. The following replacements can be used in the string: [SLOTDATE]-the date. [SLOTTIME] - The Time.  NOTE the form processing the paramaters should be able to Convert a Standard date (e.g. 2024-08-11T08:00:00Z) to the appropriate field. Note the time will only be replaced if appointment is selected from the Day List, [UID]-The UID of the calendar Owner '),
+      '#description' => $this->t('Custom URL for Open from URL Bundle Type. Used if open_from_url is true. The following replacements can be used in the string: [SLOTDATETIME]-the date, will be in the full UTC Format (e.g. 2024-09-02T07:00:00Z). [SLOTDATE]-Just the date, will be in the Format (Y-m-d) (e.g. 2024-09-02). [SLOTTIME] - Just the time.  The time will only be replaced if appointment is selected from the Day List If a Day (in the month calendar) is clicked (e.g. no specific time) it will default to 00:00.  The field in the form processing the DATE paramaters should be able to accept and Convert the UTC date , [UID]-The UID of the calendar Owner'),
     ];
 
     // Extra CSS classes.

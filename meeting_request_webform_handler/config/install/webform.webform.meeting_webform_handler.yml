@@ -4,12 +4,11 @@ status: open
 dependencies:
   module:
     - meeting_request_webform_handler
-    - webform_ics_handler
   enforced:
     module:
       - calendar_restriction_instances
 _core:
-  default_config_hash: ALJ_1f9ldqHySvsDheF-_0Hsr7XKxUPamR9jjkj3rQc
+  default_config_hash: 0ztdas1DAgRFAluQZSUp1Vus0shIB9q3vTWB95eK3_g
 weight: 0
 open: null
 close: null
@@ -41,12 +40,22 @@ elements: |-
       '#default_value': now
       '#prepopulate': true
       '#required': true
+    appointment_duration_minutes:
+      '#type': number
+      '#title': 'Appointment Duration Minutes'
+      '#min': 5
+      '#max': 1440
+      '#step': 5
+      '#default_value': 30
     end_time:
+      '#type': webform_computed_twig
       '#title': 'End Time'
-      '#type': webform_time
-      '#default_value': now
-      '#prepopulate': true
-      '#required': true
+      '#template': |-
+        {% set timeformat = "H:i" %}
+        {% set appt_start = (data.requested_date~' '~data.start_time)|date(timeformat) %}     
+        {% set new_appt_end = appt_start|date_modify(data.appointment_duration_minutes~'minutes') %}
+        {{ new_appt_end|date(timeformat) }}
+      '#ajax': true
     owner_timezone:
       '#type': webform_computed_twig
       '#title': 'Calendar Owner Time Zone'
@@ -56,7 +65,7 @@ elements: |-
       '#ajax': true
   show_appointment_in_your_time:
     '#type': checkbox
-    '#title': 'Show Appointment in Your Time'
+    '#title': 'Show Appointment in Your Time and UTC Time'
   flexbox_mytime:
     '#type': webform_flexbox
     your_time_zone:
@@ -67,6 +76,7 @@ elements: |-
         visible:
           ':input[name="show_appointment_in_your_time"]':
             checked: true
+      '#states_clear': false
       '#default_value': Europe/Paris
       '#format': raw
     your_current_time:
@@ -76,6 +86,7 @@ elements: |-
         visible:
           ':input[name="show_appointment_in_your_time"]':
             checked: true
+      '#states_clear': false
       '#display_on': form
       '#template': |-
         {% set your_tz = data.your_time_zone %}
@@ -91,6 +102,7 @@ elements: |-
         visible:
           ':input[name="show_appointment_in_your_time"]':
             checked: true
+      '#states_clear': false
       '#display_on': form
       '#template': |-
         {% set owner_tz = data.owner_timezone %}
@@ -106,8 +118,8 @@ elements: |-
         visible:
           ':input[name="show_appointment_in_your_time"]':
             checked: true
+      '#states_clear': false
       '#display_on': form
-      '#ajax': true
       '#template': |-
         {% set dateformat = "Y-m-d H:i:s" %}
 
@@ -133,7 +145,75 @@ elements: |-
 
         {% set time_diff = hours_between_time_zones(your_tz,my_tz) ~ 'hours' %} 
         {% set final_date = mydate_start|date_modify(time_diff)|date(dateFormat) %} 
+
         {{ final_date|date(dateformat) }}
+      '#ajax': true
+    appointment_in_utc_time:
+      '#type': webform_computed_twig
+      '#title': 'Appointment Start in UTC Time'
+      '#states':
+        visible:
+          ':input[name="show_appointment_in_your_time"]':
+            checked: true
+      '#states_clear': false
+      '#display_on': form
+      '#template': |-
+        {% set dateformat = "Y-m-d H:i:s" %}
+
+        {% set mydate = data.requested_date %}
+        {% set my_start_time = data.start_time %}
+
+        {# The Time zone for the Calendar Owner #}
+        {% set my_tz = data.owner_timezone %}
+        {% if my_tz is empty %}
+            {% set my_tz = "UTC" %}
+        {% endif %}
+
+        {# The Time zone for the Requestor - Just using same Function Above but setting YOU to UTC #}
+        {% set your_tz = "UTC" %}
+
+        {# Create Start date variable based on the date selected #}
+        {% set mydate_start = mydate|date(dateformat) %}
+        {# Replace time with the Start Time #}
+        {% set mydate_start = replace_time_in_date(mydate_start,my_start_time) %}
+
+        {% set time_diff = hours_between_time_zones(your_tz,my_tz) ~ 'hours' %} 
+        {% set final_date = mydate_start|date_modify(time_diff)|date(dateFormat) %} 
+        {{ final_date|date(dateformat) }}
+      '#ajax': true
+    appointment_end_in_utc_time:
+      '#type': webform_computed_twig
+      '#title': 'Appointment Start in UTC Time'
+      '#states':
+        visible:
+          ':input[name="show_appointment_in_your_time"]':
+            checked: true
+      '#states_clear': false
+      '#display_on': form
+      '#template': |-
+        {% set dateformat = "Y-m-d H:i:s" %}
+
+        {% set mydate = data.requested_date %}
+        {% set my_end_time = data.end_time %}
+
+        {# The Time zone for the Calendar Owner #}
+        {% set my_tz = data.owner_timezone %}
+        {% if my_tz is empty %}
+            {% set my_tz = "UTC" %}
+        {% endif %}
+
+        {# The Time zone for the Requestor - Just using same Function Above but setting YOU to UTC #}
+        {% set your_tz = "UTC" %}
+
+        {# Create Start date variable based on the date selected #}
+        {% set mydate_end = mydate|date(dateformat) %}
+        {# Replace time with the Start Time #}
+        {% set mydate_end = replace_time_in_date(mydate_end,my_end_time) %}
+
+        {% set time_diff = hours_between_time_zones(your_tz,my_tz) ~ 'hours' %} 
+        {% set final_date = mydate_end|date_modify(time_diff)|date(dateFormat) %} 
+        {{ final_date|date(dateformat) }}
+      '#ajax': true
   location:
     '#type': textfield
     '#title': Location
@@ -152,19 +232,70 @@ elements: |-
     '#title': 'Calendar Owner'
     '#prepopulate': true
     '#required': true
-    '#default_value': '11'
+    '#default_value': '1'
     '#private': true
     '#target_type': user
     '#selection_handler': 'default:user'
-    '#selection_settings':
-      include_anonymous: true
-      filter:
-        type: _none
-  ics_file:
-    '#type': managed_file
-    '#title': 'ics FIle'
-    '#private': true
-    '#file_extensions': ics
+  calendar_link:
+    '#type': webform_computed_twig
+    '#title': 'Calendar Links'
+    '#title_display': before
+    '#template': |-
+      {% if data.summary is empty %}
+          {% set summary = "SUMMARY" %}
+      {% else %}
+          {% set summary = data.summary %}
+      {% endif %}
+
+      {% if data.description is empty %}
+          {% set description = "DESCRIPTION" %}
+      {% else %}
+          {% set description = data.description %}
+      {% endif %}
+
+      {% if data.location is empty %}
+          {% set location = "LOCATION" %}
+      {% else %}
+          {% set location = data.location %}
+      {% endif %}
+
+      {# Get Dates from Computed Appointment in UTC Time #} 
+      {% set full_text_format = 'D, m/d/Y - H:i' %}   
+
+      {% set mydate = data.appointment_in_utc_time|date('Y-m-d') %}   
+      {% set my_start_time = data.appointment_in_utc_time|date('H:i:s') %}
+      {% set my_start_FULLTEXT = data.appointment_in_utc_time|date('H:i:s') %}
+
+      {# Use Calculated Minutes To Adjust My End Time #} 
+      {% set my_end_time = data.appointment_in_utc_time|date_modify(data.appointment_duration_minutes~'minutes')|date('H:i:s') %}
+
+
+      {# Create Start date variable based on the date selected #}
+      {% set start_date_z = mydate~'T'~my_start_time~'Z' %}
+      {% set start_date_full_text = start_date_z|date(full_text_format) %}  
+      {% set end_date_z = mydate~'T'~my_end_time~'Z' %}
+      {% set end_date_full_text = end_date_z|date(full_text_format) %} 
+      {% set start_time_text =  '<time datetime=\"'~start_date_z~'\" class=\"datetime\">'~start_date_full_text~'</time>' %}
+      {% set end_time_text = '<time datetime=\"'~end_date_z~'\" class=\"datetime\">'~end_date_full_text~'</time>' %}
+
+      {# Because of the timing on how webform renders things it will cause an error if this is not shown #}
+      Appointment Requested from {{ start_date_full_text }} to  {{ end_date_full_text }},  {{ owner_timezone }} <br>
+
+      {% set caltype="google" %}
+      {% set link = calendar_link(caltype, summary, start_time_text, end_time_text, false, description, location) %}
+      {% set new_link = link|raw %}
+      <a href={{ new_link }} target="_blank">Add {{ caltype }} Calendar</a> <br>
+
+      {% set caltype="yahoo" %}
+      {% set link = calendar_link(caltype, summary, start_time_text, end_time_text, false, description, location) %}
+      {% set new_link = link|raw %}
+      <a href={{ new_link }} target="_blank">Add {{ caltype }} Calendar</a> <br>
+
+      {% set caltype="ics" %}
+      {% set link = calendar_link(caltype, summary, start_time_text, end_time_text, false, description, location) %}
+      {% set new_link = link|raw %}
+      <a href={{ new_link }}>Add {{ caltype }} Calendar</a> <br>
+    '#ajax': true
 css: ''
 javascript: ''
 settings:
@@ -358,21 +489,12 @@ handlers:
     conditions: {  }
     weight: -50
     settings: {  }
-  ics_webform_handler:
-    id: ics_webform_handler
-    handler_id: ics_webform_handler
-    label: 'ICS Webform Handler'
-    notes: ''
-    status: true
-    conditions: {  }
-    weight: -49
-    settings: {  }
   email:
     id: email
     handler_id: email
     label: Email
     notes: ''
-    status: true
+    status: false
     conditions: {  }
     weight: 0
     settings:
@@ -392,7 +514,7 @@ handlers:
       sender_mail: ''
       sender_name: ''
       subject: 'Meeting Request: [webform_submission:values:summary]'
-      body: '<p>Submitted on [webform_submission:created]&nbsp;&nbsp;</p><p>Submitted by: [webform_submission:values:requestor_email]&nbsp;</p><p>Meeting Date: [webform_submission:values:requested_date], [webform_submission:values:start_time]-[webform_submission:values:end_time]</p><p>Meeting Description: [webform_submission:values:description]</p>'
+      body: '<p>Thank you [webform_submission:requestor_name]&nbsp; Submitted on [webform_submission:created]&nbsp;&nbsp;</p><p>Submitted by: [webform_submission:values:requestor_email]&nbsp;</p><p>Meeting Date: [webform_submission:values:requested_date], [webform_submission:values:start_time]-[webform_submission:values:end_time]&nbsp;</p><p>Meeting Description:&nbsp;</p><p>[webform_submission:values:description]&nbsp;</p><p>Calendar Links:&nbsp;</p><p>[webform_submission:values:calendar_link]</p>'
       excluded_elements: {  }
       ignore_access: false
       exclude_empty: true

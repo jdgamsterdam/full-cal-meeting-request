@@ -27,8 +27,8 @@ Modules Needed:
 --Feeds (composer require drupal/feeds, composer require drupal/feeds_tamper)
   If you want to use Feeds to eliminate Current Free Busy
 
---Create an ics file (or link for google Calendars) Use the Latest Version (2.14) of the eluceo/ical library (composer require eluceo/ical)
-  Unfortunately The existing ics Modules (e.g. https://www.drupal.org/project/ics_link_field) Use an Old Version so these cannot be installed
+--Create an Calendard Links  (composer require drupal/calendar_link)
+  Requires a bit of TWIG Gymnastics to get the right format but works great
 
 --Allow Calendars for multiple Users (composer require drupal/views_selective_filters)
   Needed to Select the User ID and Filter the Calendar
@@ -85,11 +85,8 @@ Once Imported (for whatever reason) Open the Feed Type and Save (creating indivi
 
   After the import you can open one of the nodes to make sure the Calendar Owner ID is set correctly. If  something goes wrong with the import you can delete all the instances (there could be alot). You can use   drush entity:delete node --bundle=calendar_restriction_instances
 
-6. webform_ics_handler - Needed if you want to Create an ICS file which can be added to a meeting request
-   a. Creates an ICS file from the above webform which can be sent with an email. 
-   b. This is saved in the Public Files directory under a folder called ICS.  Probably not the most secure so should be looked at to put in Private Directory 
 
-7. meeting_request_webform_handler - Used to Create a Request to the owner of the calendar for a meeting.
+6. meeting_request_webform_handler - Used to Create a Request to the owner of the calendar for a meeting.
   This module does 2 things: 
    a. Creates a Webform which allows you to make a meeting request.
    b. A custom Webform Handler that checks that the date and time are really available based on the Restrictions and existing appointments. Creates the Appointment if it does. 
@@ -102,10 +99,10 @@ Once Imported (for whatever reason) Open the Feed Type and Save (creating indivi
       3) There may be conflict with the standard Captcha form in that it thinks the calendar is a form.  You could probably remove this through JavaScript but I changed what Captcha I was using
       4) The system is setup to be integrated with CiviCRM (e.g. the Name you select in the calendar comes from the CiviCRM Record). While this is not really necessary, it adds a great deal of functionality. And, as I am on the advisory council for CiviCRM, it is my duty to encourage its use.  Or feel free to rewrite the code without it. It would be quite simple to make the User Name selection use the User.ID.  None of the base modules rely on CiviCRM, just the Meeting Request form and Calendar.
    g. The Calendar Owner and Ics Fields are set to "Private" which means if you are testing as Admin you will see them, but they should not show for normal users. 
-8. To get the view to work properly, there standard fullcalendar_view must be manually patched (I could not get this to work in a module) 
+7. To get the view to work properly, there standard fullcalendar_view must be manually patched (I could not get this to work in a module) 
   a. There is a directory called fullcalendar_view_update
   b. From that directory run the script apply_patches.sh (you might have to chmod +x apply_patches.sh to make it executable ).  
   c. If things do not work check the location of your fullcalendar_view module. Patching in Drupal is very tricky and pick on directory locations.  You can either regenerate the patches or just overwrite the existing (3) files. This can be done with the file apply_via_copy.sh
   d. These patches make some changes to the standard Full Calendar View Module that allow the creation of an appointment via a Webform . It might be possible to do as overrides but I could not make it work.
-9. Make sure to do a DRUSH UPDB (or via the web interface) at the end
+8. Make sure to do a DRUSH UPDB (or via the web interface) at the end
 

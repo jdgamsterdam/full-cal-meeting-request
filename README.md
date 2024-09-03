@@ -27,7 +27,7 @@ Modules Needed:
 --Feeds (composer require drupal/feeds, composer require drupal/feeds_tamper)
   If you want to use Feeds to eliminate Current Free Busy
 
---Create an Calendard Links  (composer require drupal/calendar_link)
+--Create Calendar Links  (composer require drupal/calendar_link)
   Requires a bit of TWIG Gymnastics to get the right format but works great
 
 --Allow Calendars for multiple Users (composer require drupal/views_selective_filters)
@@ -98,7 +98,9 @@ Once Imported (for whatever reason) Open the Feed Type and Save (creating indivi
       2) User will not Show up in the Select List of available calendars unless they have at least 1 time restriction set 
       3) There may be conflict with the standard Captcha form in that it thinks the calendar is a form.  You could probably remove this through JavaScript but I changed what Captcha I was using
       4) The system is setup to be integrated with CiviCRM (e.g. the Name you select in the calendar comes from the CiviCRM Record). While this is not really necessary, it adds a great deal of functionality. And, as I am on the advisory council for CiviCRM, it is my duty to encourage its use.  Or feel free to rewrite the code without it. It would be quite simple to make the User Name selection use the User.ID.  None of the base modules rely on CiviCRM, just the Meeting Request form and Calendar.
-   g. The Calendar Owner and Ics Fields are set to "Private" which means if you are testing as Admin you will see them, but they should not show for normal users. 
+   g. The Calendar Owner is set to "Private" which means if you are testing as Admin you will see them, but they should not show for normal users. 
+   h. By default the email handler is disabled, so you can adjust this to meet your own requirements. 
+   
 7. To get the view to work properly, there standard fullcalendar_view must be manually patched (I could not get this to work in a module) 
   a. There is a directory called fullcalendar_view_update
   b. From that directory run the script apply_patches.sh (you might have to chmod +x apply_patches.sh to make it executable ).  

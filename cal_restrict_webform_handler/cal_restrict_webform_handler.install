@@ -1,12 +1,9 @@
 <?php
-
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 /**
  * Implements hook_install().
  */
 function cal_restrict_webform_handler_install() {
-    cal_restrict_webform_handler_ensure_custom_table_exists();
-
-    //Create Sincle Instance of the Content Type to make sure it works
  
     // Check if the content type 'calendar_restriction_instances' exists.
     if (\Drupal::entityTypeManager()->getStorage('node_type')->load('calendar_restriction_instances')) {

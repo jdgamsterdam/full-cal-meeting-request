@@ -58,9 +58,9 @@ Modules Needed:
 
 4. A custom Feed Type, "Outlook To Calendar Restrictions" to Import your Outlook Calendar.  This is very basic and can be expanded to meet your requirements.
 
-The files are in the folder outlook_import_feed_type.  It should be possible to have these automatically installed in a module, but if they do not get done in the correct order it will not work.
+The files are in the folder outlook_import_feed_type_installer/config/install.  It should be possible to have these automatically installed in a module, but if they do not get done in the correct order it will not work.
 
-The following can be imported with the Single Import: /admin/config/development/configuration/single/import
+The following can be either be imported with the module outlook_import_feed_type_installer imported with the Single Import: /admin/config/development/configuration/single/import
 
     1. Field Storage -
       field.storage.feeds_feed.field_calendar_owner_uid.yml
@@ -74,6 +74,7 @@ The following can be imported with the Single Import: /admin/config/development/
 	
 Once Imported (for whatever reason) Open the Feed Type and Save (creating individual feeds will cause an error unless this is done) and check that the form display is correct
 
+By Default the Feed is set to import every day.  You need to make sure your CRON job is working on your server correctly for this to happen. 
 
 5. (Can alse be done at very end) Create specific Feed for your Calendar using the Feed type (above) "Outlook To Calendar Restrictions" .
   There should be a custom field to enter the User ID for the Calendar Owner
@@ -83,7 +84,11 @@ Once Imported (for whatever reason) Open the Feed Type and Save (creating indivi
 
   https://outlook.live.com/owa/calendar/00000000-0000-0000-0000-000000000000/a8061369-2197-473b-b89d-dba34055363e/cid-CC88C0B7EEAFC3FA/calendar.ics
 
+  You could of course import the full calendar items but that is a security risk.  But may work for your use case. And (as with note below) you could better filter on which items to show in the calendar or not.
+  
   After the import you can open one of the nodes to make sure the Calendar Owner ID is set correctly. If  something goes wrong with the import you can delete all the instances (there could be alot). You can use   drush entity:delete node --bundle=calendar_restriction_instances
+
+  NOTE: Holidays are treated as Full Day events, blocking your calendar. So either remove them from the calendar you are importing or I might get around to writing a module that catches the feed at import and looks for those types of ICS
 
 
 6. meeting_request_webform_handler - Used to Create a Request to the owner of the calendar for a meeting.

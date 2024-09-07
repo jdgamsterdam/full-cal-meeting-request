@@ -2,6 +2,9 @@ _core:
   default_config_hash: GJ4pZFXV9bcOZtz_ZKicHVtD6268ULwGD7-Mx-SwGWE
 langcode: en
 status: true
+dependencies:
+  config:
+    - field.storage.feeds_feed.field_calendar_owner_uid
 id: feeds_feed.outlook_to_calendar_restrictions.field_calendar_owner_uid
 field_name: field_calendar_owner_uid
 entity_type: feeds_feed
@@ -19,7 +22,7 @@ settings:
     sort:
       field: _none
       direction: ASC
-    auto_create: false
+    auto_create: true
     filter:
       type: _none
     include_anonymous: true

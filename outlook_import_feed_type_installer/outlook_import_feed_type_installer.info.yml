@@ -1,0 +1,8 @@
+name: 'Outlook Import Feed Installer' 
+type: module
+description: 'Provides a custom outlook feed type with a custom field for the Calendar Owner
+.'
+core_version_requirement: ^10
+package: Custom
+dependencies:
+  - feeds:feeds
